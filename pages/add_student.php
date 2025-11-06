@@ -1,7 +1,6 @@
 <?php
 include "../config/db.php";
 
-$error = "";
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -26,8 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ]);
             $success = "Student added successfully";
 
-        }
-        catch (PDOException $e) {
+        } catch (PDOException $e) {
             $error = "DB error: " . $e->getMessage();
         }
     }
@@ -38,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,39 +46,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
     <h2>Add Student</h2>
-    
-    <?php if ($error !== "") echo "<p style='color:red'>$error</p>"; ?>
-    <?php if ($success !== "") echo "<p style='color:green'>$success</p>"; ?>
+
+    <?php if ($error !== "")
+        echo "<p style='color:red'>$error</p>"; ?>
+    <?php if ($success !== "")
+        echo "<p style='color:green'>$success</p>"; ?>
 
     <form method="POST" id="studentForm">
         <label>Student ID</label>
-        <input type="text" name="student_id" required > <br>
+        <input type="text" name="student_id" required> <br>
 
         <label>Last Name</label>
-        <input type="text" name="last_name" required > <br>
+        <input type="text" name="last_name" required> <br>
 
         <label>First Name</label>
-        <input type="text" name="first_name" required ><br>
+        <input type="text" name="first_name" required><br>
 
         <label>Email</label>
-        <input type="email" name="email" required ><br>
+        <input type="email" name="email" required><br>
 
         <button type="submit">Submit</button>
     </form>
 
     <script>
-        $("#studentForm").on("submit", function(e) {
+        $("#studentForm").on("submit", function (e) {
             let valid = true;
-            $(this).find("input").each(function(){
-                if($(this).val().trim() === ""){
+            $(this).find("input").each(function () {
+                if ($(this).val().trim() === "") {
                     valid = false;
                     alert("All fields must be filled");
                     return false:
                 }
             });
-            if(!valid) e.preventDefault();
+            if (!valid) e.preventDefault();
             //! stop the form from submitting
         });
     </script>
 </body>
+
 </html>
