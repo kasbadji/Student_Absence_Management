@@ -1,139 +1,204 @@
 <?php
 include "../config/db.php";
 
-// Récupération étudiants
-$stmt = $conn->query("SELECT student_id, first_name, last_name, message FROM students ORDER BY student_id ASC");
-$students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $conn->query("SELECT student_id, first_name, last_name, message FROM students ORDER BY student_id ASC"); //! Get all students from DB
+$students = $stmt->fetchAll(PDO::FETCH_ASSOC); //! fetch all data from DB
 
-// Sauvegarde formulaire
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+$attendance = []; //! Table to store presence and participation
 
-    foreach ($_POST as $sid => $data) {
-        if (!is_numeric($sid)) continue;
+$res = $conn->query("SELECT student_id, session, status FROM attendance"); //! Select the student id , session and the value of P and Pa (status)
 
-        // Supprimer ancienne attendance
-        $conn->prepare("DELETE FROM attendance WHERE student_id=?")->execute([$sid]);
-
-        // Sauvegarder nouvelle attendance
-        if (isset($data['att'])) {
-            foreach ($data['att'] as $s => $status) {
-                if (!empty($data['att'][$s])) {
-                    foreach ($data['att'][$s] as $status) {
-                        $conn->prepare("INSERT INTO attendance (student_id, session, status)
-                                        VALUES (?, ?, ?)")
-                            ->execute([$sid, $s, $status]);
-                    }
-                }
-            }
-        }
-
-        // Message
-        if (isset($data['msg'])) {
-            $msg = trim($data['msg']);
-            $conn->prepare("UPDATE students SET message=? WHERE student_id=?")
-                 ->execute([$msg, $sid]);
-        }
-    }
-
-    echo "<p style='color:green;'>Updated.</p>";
-}
-
-// Charger attendance existante
-$attendance = [];
-$res = $conn->query("SELECT student_id, session, status FROM attendance");
-foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $row) {
+foreach ($res->fetchAll(PDO::FETCH_ASSOC) as $row) { //! loop to read the value of p and pa
     $attendance[$row["student_id"]][$row["session"]][] = $row["status"];
 }
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Attendance List</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
-<body>
 
+<body>
 <h2>Attendance List</h2>
 
-<form method="POST">
-<table border="1" cellpadding="5">
-    <thead>
-        <tr>
-            <th rowspan="2">ID</th>
-            <th rowspan="2">Last Name</th>
-            <th rowspan="2">First Name</th>
+<form id="attendanceForm">
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th rowspan="2">ID</th>
+                <th rowspan="2">Last Name</th>
+                <th rowspan="2">First Name</th>
 
-            <?php for ($s = 1; $s <= 6; $s++): ?>
-                <th colspan="2">S<?= $s ?></th>
-            <?php endfor; ?>
+                <!--loop to create S1,S2,S3 etc... (php s'exécute befor jquery) -->
+                <?php for ($s = 1; $s <= 6; $s++): ?>
+                    <th colspan="2">S<?= $s ?></th> <!--"S" + $s = S1,S2.. || = php echo-->
+                <?php endfor; ?>
 
-            <th rowspan="2">Absences</th>
-            <th rowspan="2">Participation</th>
-            <th rowspan="2">Message</th>
-        </tr>
+                <th rowspan="2">Absences</th>
+                <th rowspan="2">Participation</th>
+                <th rowspan="2">Message</th>
+            </tr>
 
-        <tr>
-            <?php for ($s = 1; $s <= 6; $s++): ?>
-                <th>P</th>
-                <th>Pa</th>
-            <?php endfor; ?>
-        </tr>
-    </thead>
+            <tr>
+               <!-- display P and Pa cells-->
+                <?php for ($s = 1; $s <= 6; $s++): ?>
+                    <th>P</th>
+                    <th>Pa</th>
+                <?php endfor; ?>
+            </tr>
+        </thead>
 
-    <tbody>
-    <?php foreach ($students as $st):
-        $sid = $st["student_id"];
-        $abs = 6;
-        $par = 0;
-    ?>
-        <tr>
-            <td><?= $sid ?></td>
-            <td><?= $st["last_name"] ?></td>
-            <td><?= $st["first_name"] ?></td>
+        <tbody>
+            <?php foreach ($students as $st):
+                //! select the student id
+                $sid = $st["student_id"];
 
-            <?php for ($s = 1; $s <= 6; $s++):
-                $val = $attendance[$sid][$s] ?? [];
+                //! calculate Absences and Participation
+                $abs = 6;
+                $par = 0;
 
-                if (is_array($val)) {
-                    foreach ($val as $status) {
-                        if ($status === "Pa") {
-                            $par++;
-                        } elseif ($status === "P") {
-                            $abs--;
+                for ($s = 1; $s <= 6; $s++) {
+                    $val = $attendance[$sid][$s] ?? [];
+
+                    //! we select the checked box and stock it in the table val
+                    if (is_array($val)) { //! is array function is to verify if $val is a table
+                        foreach ($val as $status) {
+                            if ($status === "Pa") $par++;
+                            elseif ($status === "P") $abs--;
                         }
                     }
-                } else {
-                    if ($val === "Pa") {
-                        $par++;
-                    } elseif ($val === "P") {
-                        $abs--;
+                    //! and here we calculat the p and pa that are checked once
+                    else {
+                        if ($val === "Pa") $par++;
+                        elseif ($val === "P") $abs--;
                     }
                 }
             ?>
-        <td><input type="checkbox"
-                name="<?= $sid ?>[att][<?= $s ?>][]"
-                value="P"
-                <?= (is_array($val) && in_array("P", $val)) ? "checked" : "" ?>></td>
 
-        <td><input type="checkbox"
-                name="<?= $sid ?>[att][<?= $s ?>][]"
-                value="Pa"
-                <?= (is_array($val) && in_array("Pa", $val)) ? "checked" : "" ?>></td>
+           <!--store student id , only jquery can read it-->
+            <tr data-sid="<?= htmlspecialchars($sid) ?>">
 
+                <td class="sid"><?= htmlspecialchars($sid) ?></td> <!--display id-->
+                <td><?= htmlspecialchars($st["last_name"]) ?></td> <!--last name-->
+                <td><?= htmlspecialchars($st["first_name"]) ?></td> <!--first name-->
 
-            <?php endfor; ?>
+               <!--read and display all box with previous information (if it was chaked or not)-->
+                <?php for ($s = 1; $s <= 6; $s++):
+                    $val = $attendance[$sid][$s] ?? [];
 
-            <td><?= $abs ?></td>
-            <td><?= $par ?></td>
-            <td><input type="text" name="<?= $sid ?>[msg]" value="<?= htmlspecialchars($st["message"]) ?>"></td>
-        </tr>
-    <?php endforeach; ?>
-    </tbody>
-</table>
+                    $checkedP = (is_array($val) && in_array("P", $val)) ? 'checked' : '';
 
-<br>
-<button type="submit">Save</button>
+                    $checkedPa = (is_array($val) && in_array("Pa", $val)) ? 'checked' : '';
+                ?>
+
+                    <td>
+                        <input type="checkbox"
+                            class="att-checkbox"
+                            data-session="<?= $s ?>"
+                            data-status="P"
+                            name="<?= $sid ?>[att][<?= $s ?>][]"
+                            value="P"
+                            <?= $checkedP ?>>
+                    </td>
+
+                    <td>
+                        <input type="checkbox"
+                            class="att-checkbox"
+                            data-session="<?= $s ?>"
+                            data-status="Pa"
+                            name="<?= $sid ?>[att][<?= $s ?>][]"
+                            value="Pa"
+                            <?= $checkedPa ?>>
+                    </td>
+
+                <?php endfor; ?>
+
+                <td class="absences"><?= $abs ?></td>
+                <td class="participation"><?= $par ?></td>
+
+                <td>
+                    <span class="msg-text"><?= htmlspecialchars($st["message"] ?? '') ?></span>
+                </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+    </table>
 </form>
 
+<div id="statusMsg" class="msg"></div>
+
+<script>
+$(function() {
+    function recalcRow($tr) {
+        var abs = 6;
+        var par = 0;
+
+        //! re calculate the abs and presence evry refresh not like php who do it once
+        for (var s = 1; s <= 6; s++) {
+            //! serach inside tr , for matching class att-checkbox where the status is P and it is checked
+            var pChecked = $tr.find('input.att-checkbox[data-session="'+s+'"][data-status="P"]').is(':checked');
+
+            //! serach inside tr , for matching class att-checkbox where the status is Pa and it is checked
+            var paChecked = $tr.find('input.att-checkbox[data-session="'+s+'"][data-status="Pa"]').is(':checked');
+
+            if (paChecked) par++;
+            if (pChecked) abs--;
+        }
+
+        //! update numbers
+        $tr.find('.absences').text(abs);
+        $tr.find('.participation').text(par);
+
+        //! apply color + auto-message
+        var $msg = $tr.find('.msg-text');
+        if (abs < 3) {
+            $tr.css('background-color', 'lightgreen');
+            $msg.text("Good attendance – Excellent participation");
+        }
+        else if (abs <= 4) {
+            $tr.css('background-color', 'khaki');
+            $msg.text("Warning – attendance low – You need to participate more");
+        }
+        else {
+            $tr.css('background-color', 'lightcoral');
+            $msg.text("Excluded – too many absences – You need to participate more");
+        }
+    }
+
+    //! on change of any checkbox
+    $(document).on('change', 'input.att-checkbox', function() {
+        var $tr = $(this).closest('tr');
+        recalcRow($tr);
+    });
+
+    //! initial recalculation for all rows
+    $('tbody tr').each(function() {
+        recalcRow($(this));
+    });
+
+    //! AJAX form submit
+    $('#attendanceForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#statusMsg').text('Saving...');
+
+        $.ajax({
+            url: 'attendance_update.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                $('#statusMsg').text(resp);
+            },
+            error: function(xhr) {
+                $('#statusMsg').text('Error: ' + (xhr.responseText || xhr.statusText));
+            }
+        });
+    });
+});
+
+</script>
 </body>
 </html>
