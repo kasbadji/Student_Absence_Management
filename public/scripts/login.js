@@ -1,3 +1,4 @@
+$(document).ready(function() {
 $("#loginForm").on("submit", function(e){
     e.preventDefault();
 
@@ -28,4 +29,5 @@ $("#loginForm").on("submit", function(e){
           $("#message").html("<p style='color: red;'>AJAX error</p>");
         }
     });
+});
 });
