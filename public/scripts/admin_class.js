@@ -1,61 +1,83 @@
 $(document).ready(function () {
-    // 🟢 Load existing classes on page load
-    fetchClasses();
+    // Fetch and show classes
+    function loadClasses() {
+        $.getJSON("../api/class_list.php", function (data) {
+            let rows = "";
 
-    // 🟢 Handle form submission
-    $("#classForm").submit(function (e) {
-        e.preventDefault();
-
-        $.ajax({
-            url: "../api/class_create.php",
-            method: "POST",
-            data: $(this).serialize(),
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    $("#message").html(`<p style='color:green;'>${response.success}</p>`);
-                    $("#classForm")[0].reset();
-                    fetchClasses(); // reload table
-                } else {
-                    $("#message").html(`<p style='color:red;'>${response.error}</p>`);
-                }
-            },
-            error: function () {
-                $("#message").html("<p style='color:red;'>Server error</p>");
-            }
-        });
-    });
-
-    // 🟢 Function to load classes
-    function fetchClasses() {
-        $.ajax({
-            url: "../api/class_list.php",
-            method: "GET",
-            dataType: "json",
-            success: function (data) {
-                let tbody = $("#classTable tbody");
-                tbody.empty();
-
-                if (data.length === 0) {
-                    tbody.append("<tr><td colspan='4'>No classes found</td></tr>");
-                    return;
-                }
-
-                // ✅ Loop through all classes
-                data.forEach((cls) => {
-                    tbody.append(`
+            if (data.length > 0) {
+                data.forEach(function (c) {
+                    rows += `
                         <tr>
-                            <td>${cls.id_class}</td>
-                            <td>${cls.class_name}</td>
-                            <td>${cls.level}</td>
-                            <td>${cls.academic_year}</td>
+                            <td>${c.id_class}</td>
+                            <td><input type="text" class="edit-name" value="${c.class_name}" data-id="${c.id_class}"></td>
+                            <td><input type="text" class="edit-level" value="${c.level}" data-id="${c.id_class}"></td>
+                            <td><input type="text" class="edit-year" value="${c.academic_year}" data-id="${c.id_class}"></td>
+                            <td>
+                                <button class="updateBtn" data-id="${c.id_class}">💾 Save</button>
+                                <button class="deleteBtn" data-id="${c.id_class}">🗑️ Delete</button>
+                            </td>
                         </tr>
-                    `);
+                    `;
                 });
-            },
-            error: function (xhr, status, error) {
-                console.error("Error loading classes:", error);
+            } else {
+                rows = `<tr><td colspan='5'>No classes found</td></tr>`;
             }
+
+            $("#classTable tbody").html(rows);
         });
     }
+
+    loadClasses();
+
+    // Create new class
+    $("#classForm").on("submit", function (e) {
+        e.preventDefault();
+
+        $.post("../api/class_create.php", $(this).serialize(), function (response) {
+            if (response.success) {
+                $("#message").html(`<p style='color:green'>${response.success}</p>`);
+                $("#classForm")[0].reset();
+                loadClasses();
+            } else {
+                $("#message").html(`<p style='color:red'>${response.error}</p>`);
+            }
+        }, "json");
+    });
+
+    // Delete class
+    $(document).on("click", ".deleteBtn", function () {
+        if (!confirm("Are you sure you want to delete this class?")) return;
+
+        const id = $(this).data("id");
+        $.post("../api/class_delete.php", { id_class: id }, function (response) {
+            if (response.success) {
+                $("#message").html(`<p style='color:green'>${response.success}</p>`);
+                loadClasses();
+            } else {
+                $("#message").html(`<p style='color:red'>${response.error}</p>`);
+            }
+        }, "json");
+    });
+
+    // Update class
+    $(document).on("click", ".updateBtn", function () {
+        const id = $(this).data("id");
+        const name = $(`.edit-name[data-id='${id}']`).val();
+        const level = $(`.edit-level[data-id='${id}']`).val();
+        const year = $(`.edit-year[data-id='${id}']`).val();
+
+        $.post("../api/class_update.php", {
+            id_class: id,
+            class_name: name,
+            level: level,
+            academic_year: year
+        }, function (response) {
+            if (response.success) {
+                $("#message").html(`<p style='color:green'>${response.success}</p>`);
+                loadClasses();
+            } else {
+                $("#message").html(`<p style='color:red'>${response.error}</p>`);
+            }
+        }, "json");
+    });
 });

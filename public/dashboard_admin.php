@@ -38,11 +38,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
                 <th>Name</th>
                 <th>Level</th>
                 <th>Academic Year</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
-    
+
     <script src="scripts/admin_class.js"></script>
 </body>
 </html>
