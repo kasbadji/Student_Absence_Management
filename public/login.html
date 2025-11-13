@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="scripts/login.js"></script>
 </head>
 <body>
     <h2>Login</h2>
@@ -17,28 +18,5 @@
     </form>
 
     <div id="message"></div>
-
-    <script>
-        $("#loginForm").on("submit", function(e){
-            e.preventDefault();
-
-            $.ajax({
-                url: "../api/login.php",
-                type: "POST",
-                data: $(this).serialize(),
-                dataType: "json",
-                success: function(response){
-                    if(response.success){
-                        $("#message").html("<p style='color: green;'>" + response.success + "</p>");
-                    } else {
-                        $("#message").html("<p style='color: red;'>" + response.error + "</p>");
-                    }
-                },
-                error: function(){
-                    $("#message").html("<p style='color: red;'>AJAX error</p>");
-                }
-            });
-        });
-    </script>
 </body>
 </html>

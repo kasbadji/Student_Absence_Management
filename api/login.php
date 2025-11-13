@@ -21,11 +21,15 @@ if (!$user || !password_verify($password, $user["password_hash"])) {
     exit;
 }
 
-// Set session
-$_SESSION['user_id'] = $user['id_user'];
-$_SESSION['role'] = $user['role'];
+if ($user && password_verify($password, $user['password_hash'])) {
+    
+    $_SESSION['user_id'] = $user['id_user'];
+    $_SESSION['role'] = $user['role'];
 
-echo json_encode(['success' => 'Login successful!', 'role' => $user['role']]);
+    echo json_encode(["success" => "Login successful", "role" => $user['role']]);
+} else {
+    echo json_encode(["error" => "Invalid username or password"]);
+}
 
 
 //! User fills form → AJAX sends to login.php
