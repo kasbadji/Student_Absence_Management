@@ -13,11 +13,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Manage Classes</title>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
-    <h1>Admin Dashboard - Manage Classes</h1>
+    <h1>Manage Classes</h1>
 
     <h3>Create New Class</h3>
     <form id="classForm">
@@ -44,6 +44,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
         <tbody></tbody>
     </table>
 
-    <script src="scripts/admin_class.js"></script>
+    <script src="../scripts/admin/class.js"></script>
 </body>
 </html>

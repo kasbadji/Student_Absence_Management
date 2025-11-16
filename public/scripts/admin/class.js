@@ -1,7 +1,7 @@
 $(document).ready(function () {
     // Fetch and show classes
     function loadClasses() {
-        $.getJSON("../api/class_list.php", function (data) {
+        $.getJSON("../../api/classes/list.php", function (data) {
             let rows = "";
 
             if (data.length > 0) {
@@ -33,7 +33,7 @@ $(document).ready(function () {
     $("#classForm").on("submit", function (e) {
         e.preventDefault();
 
-        $.post("../api/class_create.php", $(this).serialize(), function (response) {
+        $.post("../../api/classes/create.php", $(this).serialize(), function (response) {
             if (response.success) {
                 $("#message").html(`<p style='color:green'>${response.success}</p>`);
                 $("#classForm")[0].reset();
@@ -49,7 +49,7 @@ $(document).ready(function () {
         if (!confirm("Are you sure you want to delete this class?")) return;
 
         const id = $(this).data("id");
-        $.post("../api/class_delete.php", { id_class: id }, function (response) {
+        $.post("../../api/classes/delete.php", { id_class: id }, function (response) {
             if (response.success) {
                 $("#message").html(`<p style='color:green'>${response.success}</p>`);
                 loadClasses();
@@ -66,7 +66,7 @@ $(document).ready(function () {
         const level = $(`.edit-level[data-id='${id}']`).val();
         const year = $(`.edit-year[data-id='${id}']`).val();
 
-        $.post("../api/class_update.php", {
+        $.post("../../api/classes/update.php", {
             id_class: id,
             class_name: name,
             level: level,
