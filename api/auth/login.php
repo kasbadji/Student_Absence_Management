@@ -1,7 +1,18 @@
 <?php
 session_start();
+$path = __DIR__ . '/../../config/db.php';
+
+if (!file_exists($path)) {
+    echo json_encode([
+        "error" => "DB file not found",
+        "checked" => $path
+    ]);
+    exit;
+}
+
+require_once $path;
+
 header("Content-Type: application/json");
-require_once __DIR__ ."/../config/db.php";
 
 $username = $_POST["username"] ?? '';
 $password = $_POST['password'] ?? '';
@@ -22,7 +33,7 @@ if (!$user || !password_verify($password, $user["password_hash"])) {
 }
 
 if ($user && password_verify($password, $user['password_hash'])) {
-    
+
     $_SESSION['user_id'] = $user['id_user'];
     $_SESSION['role'] = $user['role'];
 

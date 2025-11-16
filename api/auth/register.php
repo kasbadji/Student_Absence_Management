@@ -1,6 +1,16 @@
 <?php
 header("Content-Type: application/json"); //! sending to browser or ajax response as json data
-require_once __DIR__ ."/../config/db.php";
+$path = __DIR__ . '/../../config/db.php';
+
+if (!file_exists($path)) {
+    echo json_encode([
+        "error" => "DB file not found",
+        "checked" => $path
+    ]);
+    exit;
+}
+
+require_once $path;
 
 $username = $_POST["username"] ?? '';
 $password = $_POST['password'] ??'';

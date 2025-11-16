@@ -3,7 +3,10 @@ $("#loginForm").on("submit", function(e){
     e.preventDefault();
 
     $.ajax({
-        url: "../api/login.php",
+
+      url: "/Student_Absence_Management/api/auth/login.php",
+
+
         type: "POST",
         data: $(this).serialize(),
         dataType: "json",
@@ -25,8 +28,10 @@ $("#loginForm").on("submit", function(e){
           $("#message").html("<p style='color: red;'>" + response.error + "</p>");
         }
         },
-        error: function(){
-          $("#message").html("<p style='color: red;'>AJAX error</p>");
+        error: function(jqXHR, textStatus, errorThrown){
+
+          console.error("AJAX error:", textStatus, errorThrown, jqXHR.responseText);
+          $("#message").html("<p style='color: red;'>AJAX error: " + textStatus + "</p>");
         }
     });
 });

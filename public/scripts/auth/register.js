@@ -3,7 +3,7 @@ $("#registerForm").on("submit", function(e){
     e.preventDefault(); // <-- THIS stops the page reload
 
     $.ajax({
-        url: "../api/register.php",
+         url: "/Student_Absence_Management/api/auth/register.php",
         type: "POST",
         data: $(this).serialize(),
         dataType: "json",
