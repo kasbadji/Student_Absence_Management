@@ -14,13 +14,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Classes</title>
+    <title>Manage Courses</title>
     <link rel="stylesheet" href="assets/admin.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 </head>
 
 <body>
-<div class="sidebar">
+    <div class="sidebar">
     <h2>Admin Panel</h2>
 
     <a href="dashboard.php">📊 Dashboard</a>
@@ -32,34 +33,38 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
 
 <!-- Main Content -->
 <div class="content">
-    <h1>Manage Classes</h1>
+    <h2>Manage Courses</h2>
 
-    <h3>Create New Class</h3>
-    <form id="classForm">
-        <input type="text" name="class_name" placeholder="Class Name" required><br><br>
-        <input type="text" name="level" placeholder="Level" required><br><br>
-        <input type="text" name="academic_year" placeholder="Academic Year" required><br><br>
-        <button type="submit" class="btn">Create Class</button>
-    </form>
+    <div>
+        <h3>Add New Course</h3>
 
-    <div id="message"></div>
-    <hr>
+        <input type="text" id="c_name" placeholder="Course Name">
+        <input type="text" id="c_code" placeholder="Course Code">
 
-    <h3>Existing Classes</h3>
-    <table border="1" id="classTable">
+        <select id="c_class"></select>
+        <select id="c_teacher"></select>
+
+        <button id="createCourse" class="btn">Add Course</button>
+    </div>
+
+    <h3>Existing Courses</h3>
+
+    <table id="courseTable" border="1">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Level</th>
-                <th>Academic Year</th>
+                <th>Code</th>
+                <th>Class</th>
+                <th>Teacher</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
+
+    <script src="../scripts/admin/course.js"></script>
 </div>
-    <script src="../scripts/admin/class.js"></script>
 </body>
 
 </html>
