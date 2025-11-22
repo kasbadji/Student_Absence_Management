@@ -14,15 +14,14 @@ $("#loginForm").on("submit", function(e){
         if(response.success){
             $("#message").html("<p style='color: green;'>" + response.success + "</p>");
 
-            if (response.role === "Admin") {
-                window.location.href = "dashboard_admin.php";
-            }
-            else if (response.role === "Teacher") {
-                window.location.href = "dashboard_teacher.php";
-            }
-            else if (response.role === "Student") {
-                window.location.href = "dashboard_student.php";
-            }
+
+              if (response.role === "Admin") {
+                    window.location.href = "/Student_Absence_Management/public/admin/dashboard.php";
+              } else if (response.role === "Teacher") {
+                    window.location.href = "/Student_Absence_Management/public/teacher/dashboard.php";
+               } else if (response.role === "Student") {
+                    window.location.href = "/Student_Absence_Management/public/student/dashboard.php";
+              }
         }
         else {
           $("#message").html("<p style='color: red;'>" + response.error + "</p>");
