@@ -21,11 +21,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
 <div class="sidebar">
     <h2>Admin Panel</h2>
 
-    <a href="dashboard.php">📊 Dashboard</a>
-    <a href="student.php">👨‍🎓 Manage Students</a>
-    <a href="teacher.php">👨‍🏫 Manage Teachers</a>
-    <a href="class.php">🏫 Manage Classes</a>
-    <a href="course.php">📚 Manage Courses</a>
+    <a href="dashboard.php">Dashboard</a>
+    <a href="student.php">Manage Students</a>
+    <a href="teacher.php">Manage Teachers</a>
+    <a href="class.php">Manage Classes</a>
+    <a href="course.php">Manage Courses</a>
 </div>
 
 <!-- Main Content -->

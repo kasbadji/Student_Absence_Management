@@ -4,19 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="scripts/auth/login.js"></script>
+    <link rel="stylesheet" href="assets/login.css">
 </head>
 <body>
-    <h2>Login</h2>
+    <div class="login-container">
+        <main class="login-card" role="region" aria-label="Login">
+            <div class="brand">
+                <h1 id="login-title">Student Absence</h1>
+            </div>
 
-    <form id="loginForm">
-        <input type="text" name="username" placeholder="Username" required><br><br>
-        <input type="password" name="password" placeholder="Password" required><br><br>
+            <form id="loginForm" class="login-form" autocomplete="on">
+                <label for="username" class="visually-hidden">Username</label>
+                <input id="username" type="text" name="username" placeholder="Username or email" required autocomplete="username">
 
-        <button type="submit">Login</button>
-    </form>
+                <div class="password-field">
+                    <label for="password" class="visually-hidden">Password</label>
+                    <input id="password" type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="toggle-password" aria-label="Show password" title="Show password">👁️</button>
+                </div>
 
-    <div id="message"></div>
+                <button id="loginBtn" type="submit" class="btn">Sign in</button>
+            </form>
+
+            <p class="muted">Don't have an account? <a href="register.html">Register</a></p>
+
+            <div id="message" role="status" aria-live="polite"></div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="scripts/auth/login.js"></script>
 </body>
 </html>

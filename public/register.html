@@ -4,27 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="assets/login.css">
 </head>
 <body>
-    <h2>Register New Account</h2>
+    <div class="login-container">
+        <main class="login-card" role="region" aria-label="Register">
+            <div class="brand">
 
-    <form id="registerForm">
-        <input type="text" name="username" placeholder="Username" required><br><br>
-        <input type="password" name="password" placeholder="Password" required><br><br>
+                <h1 id="register-title">Create account</h1>
+            </div>
 
-        <select name="role" required>
-            <option value="" disabled selected>Select Role</option>
-            <option value="Admin">Admin</option>
-            <option value="Teacher">Teacher</option>
-            <option value="Student">Student</option>
-        </select> <br><br>
+            <form id="registerForm" class="login-form" autocomplete="on">
+                <label for="username" class="visually-hidden">Username</label>
+                <input id="username" type="text" name="username" placeholder="Username or email" required autocomplete="username">
 
-        <button type="submit">Register</button>
-    </form>
+                <div class="password-field">
+                    <label for="password" class="visually-hidden">Password</label>
+                    <input id="password" type="password" name="password" placeholder="Password" required autocomplete="new-password">
+                    <button type="button" class="toggle-password" aria-label="Show password" title="Show password">👁️</button>
+                </div>
 
-    <div id="message"></div>
+                <div class="password-field">
+                    <label for="password_confirm" class="visually-hidden">Confirm password</label>
+                    <input id="password_confirm" type="password" name="password_confirm" placeholder="Confirm password" required autocomplete="new-password">
+                    <button type="button" class="toggle-password" aria-label="Show password" title="Show password">👁️</button>
+                </div>
 
+                <select name="role" required>
+                    <option value="" disabled selected>Select Role</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Student">Student</option>
+                </select>
+
+                <button id="registerBtn" type="submit" class="btn">Register</button>
+            </form>
+
+            <p class="muted">Already have an account? <a href="login.html">Sign in</a></p>
+
+            <div id="message" role="status" aria-live="polite"></div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="scripts/auth/register.js"></script>
 </body>
 </html>
