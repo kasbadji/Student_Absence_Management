@@ -18,15 +18,25 @@ $(document).ready(function() {
         if(response && response.success){
           $msg.text(response.success).addClass('success');
 
+          // Debug: show full response in console and normalize role by trimming + lowercasing
+          console.log('login response:', response);
           setTimeout(function(){
-            if (response.role === "Admin") {
-              window.location.href = "/Student_Absence_Management/public/admin/dashboard.php";
-            } else if (response.role === "Teacher") {
-              window.location.href = "/Student_Absence_Management/public/teacher/dashboard.php";
-            } else if (response.role === "Student") {
-              window.location.href = "/Student_Absence_Management/public/student/dashboard.php";
+            var role = (response.role || '').toString().trim().toLowerCase();
+            // show the returned role briefly in the message area to aid debugging
+            try{ $msg.append(' (role: ' + (response.role === undefined ? 'undefined' : '['+response.role+']') + ')'); }catch(e){}
+
+            if (role === 'admin') {
+              window.location.href = '/Student_Absence_Management/public/admin/dashboard.php';
+            } else if (role === 'teacher') {
+              window.location.href = '/Student_Absence_Management/public/teacher/dashboard.php';
+            } else if (role === 'student') {
+              window.location.href = '/Student_Absence_Management/public/student/dashboard.php';
             } else {
-              window.location.reload();
+              if (response.redirect) {
+                window.location.href = response.redirect;
+              } else {
+                window.location.reload();
+              }
             }
           }, 450);
         } else {
@@ -43,7 +53,7 @@ $(document).ready(function() {
     });
   });
 
-  // password toggle (robust)
+
   $(document).on('click', '.toggle-password', function(e){
     e.preventDefault();
     var $btn = $(this);
