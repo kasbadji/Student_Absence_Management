@@ -1,49 +1,65 @@
 <?php
+//? Admin/Teacher login with email and password (Table users)
+//? Student login with matricule and password (Table students + users)
+//! password hashed
+header('Content-Type: application/json');
 session_start();
-$path = __DIR__ . '/../../config/db.php';
 
-if (!file_exists($path)) {
-    echo json_encode([
-        "error" => "DB file not found",
-        "checked" => $path
-    ]);
-    exit;
+require_once __DIR__ . '/../config/db.php';
+
+try {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($input['identifier']) || empty($input['password'])) {
+        echo json_encode(['success' => false, 'message' => 'Identifier and password are required.']);
+        exit;
+    }
+
+    //! identifier is email or matricule
+    $identifier = trim($input['identifier']);
+    $password = trim($input['password']);
+
+    //! try to find by email first for teacher and admin
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :identifier");
+    $stmt->execute(['identifier' => $identifier]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    //! if not found, try to find by matricule for student
+    if (!$user) {
+        $sql = "SELECT u.* , s.matricule FROM users u
+                JOIN students s ON u.user_id = s.user_id
+                WHERE s.matricule = :identifier";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['identifier' => $identifier]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //! if user found, verify password
+
+    if ($user && password_verify($password, $user['password_hash'])) {
+
+        //! store data
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['role'] = $user['role'];
+        $_SESSION['full_name'] = $user['full_name'];
+
+        $response = [
+            'success' => true,
+            'message' => 'Login successful',
+            'role' => $user['role'],
+            'user_id' => $user['user_id'],
+            'full_name' => $user['full_name']
+        ];
+    } else {
+        $response = [
+            'success' => false,
+            'message' => 'Invalid identifier or password'
+        ];
+    }
+    echo json_encode($response);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
+?>
 
-require_once $path;
-
-header("Content-Type: application/json");
-
-$username = $_POST["username"] ?? '';
-$password = $_POST['password'] ?? '';
-
-if (empty($username) || empty($password)) {
-    echo json_encode(["error" => "Username and password are required."]);
-    exit;
-}
-
-//! find user
-$stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
-$stmt->execute([$username]);
-$user = $stmt->fetch();
-
-if (!$user || !password_verify($password, $user["password_hash"])) {
-    echo json_encode(["error" => "Invalid username or password."]);
-    exit;
-}
-
-if ($user && password_verify($password, $user['password_hash'])) {
-
-    $_SESSION['user_id'] = $user['id_user'];
-    $_SESSION['role'] = $user['role'];
-
-    echo json_encode(["success" => "Login successful", "role" => $user['role']]);
-} else {
-    echo json_encode(["error" => "Invalid username or password"]);
-}
-
-
-//! User fills form → AJAX sends to login.php
-//? → PHP fetches user → password_verify()
-//? → If OK, PHP sets $_SESSION variables
-//? → Returns JSON { success: "Login successful" }

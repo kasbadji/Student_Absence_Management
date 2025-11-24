@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="assets/login.css">
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
-    <div class="login-container">
-        <main class="login-card" role="region" aria-label="Login">
-            <div class="brand">
-                <h1 id="login-title">Student Absence</h1>
-            </div>
 
-            <form id="loginForm" class="login-form" autocomplete="on">
-                <label for="username" class="visually-hidden">Username</label>
-                <input id="username" type="text" name="username" placeholder="Username or email" required autocomplete="username">
+  <h2>Login</h2>
+  <input type="text" id="identifier" placeholder="Email or Matricule"><br><br>
+  <input type="password" id="password" placeholder="Password"><br><br>
+  <button id="loginBtn">Login</button>
+  <p id="message"></p>
 
-                <div class="password-field">
-                    <label for="password" class="visually-hidden">Password</label>
-                    <input id="password" type="password" name="password" placeholder="Password" required autocomplete="current-password">
-                    <button type="button" class="toggle-password" aria-label="Show password" title="Show password">👁️</button>
-                </div>
+<script>
+    $('#loginBtn').click(function() {
+    const data = {
+        identifier: $('#identifier').val(),
+        password: $('#password').val()
+    };
 
-                <button id="loginBtn" type="submit" class="btn">Sign in</button>
-            </form>
+    $.ajax({
+        url: '../api/auth/login.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(res) {
+        if (res.success) {
+            $('#message').text(res.message);
+            if (res.role === 'admin') window.location.href = 'admin_dashboard.html';
+            else if (res.role === 'teacher') window.location.href = 'teacher_dashboard.html';
+            else if (res.role === 'student') window.location.href = 'student_dashboard.html';
+        } else {
+            $('#message').text(res.message);
+        }
+        },
+        error: function() {
+        $('#message').text('Error connecting to server.');
+        }
+    });
+    });
+</script>
 
-            <p class="muted">Don't have an account? <a href="register.html">Register</a></p>
-
-            <div id="message" role="status" aria-live="polite"></div>
-        </main>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="scripts/auth/login.js"></script>
 </body>
 </html>

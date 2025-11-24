@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .stat-box { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; display: inline-block; width: 180px; text-align: center; }
+    .logout-btn { float: right; }
+  </style>
+</head>
+<body>
+
+  <h2>Admin Dashboard</h2>
+  <button class="logout-btn">Logout</button>
+  <p>Welcome, <span id="adminName"></span></p>
+
+ <div id="statsContainer">
+    <div class="card">
+      <h3 id="studentCount">0</h3><p>Students</p>
+    </div>
+    <div class="card">
+      <h3 id="teacherCount">0</h3><p>Teachers</p>
+    </div>
+    <div class="card">
+      <h3 id="moduleCount">0</h3><p>Modules</p>
+    </div>
+    <div class="card">
+      <h3 id="sessionCount">0</h3><p>Sessions</p>
+    </div>
+  </div>
+
+  <!-- 👇 New section to create a teacher -->
+  <div id="create-teacher-form">
+    <h3>Create Teacher Account</h3>
+    <input type="text" id="teacherFullName" placeholder="Full Name">
+    <input type="email" id="teacherEmail" placeholder="Email">
+    <input type="password" id="teacherPassword" placeholder="Password">
+    <button id="createTeacherBtn">Create Teacher</button>
+    <p id="teacherMsg" class="status"></p>
+  </div>
+
+<script>
+$(document).ready(function() {
+
+  $.get('../api/auth/check_session.php', function(res) {
+      if (!res.logged_in || res.role !== 'admin') {
+          window.location.href = 'login.html';
+      } else {
+          $('#adminName').text(res.full_name);
+          loadDashboardStats();
+      }
+  });
+
+  function loadDashboardStats() {
+      $.get('../api/admin/dashboard_data.php', function(res) {
+          if (res.success) {
+              $('#studentCount').text(res.stats.students);
+              $('#teacherCount').text(res.stats.teachers);
+              $('#moduleCount').text(res.stats.modules);
+              $('#sessionCount').text(res.stats.sessions);
+          }
+      });
+  }
+
+  $('.logout-btn').click(function() {
+      $.get('../api/auth/logout.php', function() {
+          window.location.href = 'login.html';
+      });
+  });
+
+  $('#createTeacherBtn').click(function() {
+      const full_name = $('#teacherFullName').val().trim();
+      const email = $('#teacherEmail').val().trim();
+      const password = $('#teacherPassword').val().trim();
+
+      if (!full_name || !email || !password) {
+          $('#teacherMsg').addClass('error').removeClass('status')
+                          .text('All fields are required.');
+          return;
+      }
+
+      const payload = { full_name, email, password };
+
+      $.ajax({
+          url: '../api/admin/create_teacher.php',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(payload),
+          success: function(res) {
+              if (res.success) {
+                  $('#teacherMsg').removeClass('error').addClass('status')
+                                  .text('✅ ' + res.message);
+                  $('#teacherFullName, #teacherEmail, #teacherPassword').val('');
+                  loadDashboardStats();
+              } else {
+                  $('#teacherMsg').removeClass('status').addClass('error')
+                                  .text('❌ ' + (res.message || 'Error occurred'));
+              }
+          },
+          error: function() {
+              $('#teacherMsg').removeClass('status').addClass('error')
+                              .text('Server connection failed.');
+          }
+      });
+  });
+
+});
+</script>
+</body>
+</html>
