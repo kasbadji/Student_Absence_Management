@@ -15,27 +15,27 @@ try {
 
     //! count students
     $stmt = $pdo->query("SELECT COUNT(*) AS count FROM students");
-    $stats['students'] = $stmt->fetch(PDO::FETCH_ASSOC) ['count'];
+    $stats['students'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
     //! count teachers
     $stmt = $pdo->query("SELECT COUNT(*) AS count FROM teachers");
-    $stats['teachers'] = $stmt->fetch(PDO::FETCH_ASSOC) ['count'];
+    $stats['teachers'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
     //! count modules
     $stmt = $pdo->query("SELECT COUNT(*) AS count FROM modules");
-    $stats['modules'] = $stmt->fetch(PDO::FETCH_ASSOC) ['count'];
+    $stats['modules'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
     //! count sessions
     $stmt = $pdo->query("SELECT COUNT(*) AS count FROM sessions");
-    $stats['sessions'] = $stmt->fetch(PDO::FETCH_ASSOC) ['count'];
+    $stats['sessions'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
     echo json_encode([
-    'success' => true,
-    'data' => $stats,
-    'admin_name' => $_SESSION['full_name']
+        'success' => true,
+        'stats' => $stats,
+        'admin_name' => $_SESSION['full_name']
     ]);
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>
+

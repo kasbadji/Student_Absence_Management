@@ -4,19 +4,27 @@
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .stat-box { border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 8px; display: inline-block; width: 180px; text-align: center; }
+    body { font-family: Arial, sans-serif; padding: 25px; }
+    .card { display: inline-block; border: 1px solid #ccc; border-radius: 8px; padding: 15px; margin: 8px; }
+    form { margin-top: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 6px; width: 350px; display: inline-block; vertical-align: top; }
+    input { display: block; width: 100%; margin-bottom: 8px; padding: 6px; }
+    button { padding: 6px 12px; margin-top: 4px; }
     .logout-btn { float: right; }
+    .status { margin-top: 10px; color: #006400; }
+    .error { color: #b22222; }
+    h3 { margin-top: 0; }
   </style>
+
 </head>
 <body>
-
   <h2>Admin Dashboard</h2>
   <button class="logout-btn">Logout</button>
   <p>Welcome, <span id="adminName"></span></p>
 
- <div id="statsContainer">
+  <!-- Stats -->
+  <div id="statsContainer">
     <div class="card">
       <h3 id="studentCount">0</h3><p>Students</p>
     </div>
@@ -31,20 +39,27 @@
     </div>
   </div>
 
-  <!-- 👇 New section to create a teacher -->
-  <div id="create-teacher-form">
+  <form id="create-teacher">
     <h3>Create Teacher Account</h3>
-    <input type="text" id="teacherFullName" placeholder="Full Name">
-    <input type="email" id="teacherEmail" placeholder="Email">
-    <input type="password" id="teacherPassword" placeholder="Password">
-    <button id="createTeacherBtn">Create Teacher</button>
+    <input type="text" id="teacherFullName" placeholder="Full Name" required>
+    <input type="email" id="teacherEmail" placeholder="Email" required>
+    <input type="password" id="teacherPassword" placeholder="Password" required>
+    <button id="createTeacherBtn" type="button">Create Teacher</button>
     <p id="teacherMsg" class="status"></p>
-  </div>
+  </form>
+
+  <form id="create-student">
+    <h3>Create Student Account</h3>
+    <input type="text" id="studentFullName" placeholder="Full Name" required>
+    <input type="password" id="studentPassword" placeholder="Password" required>
+    <button id="createStudentBtn" type="button">Create Student</button>
+    <p id="studentMsg" class="status"></p>
+  </form>
 
 <script>
 $(document).ready(function() {
 
-  $.get('../api/auth/check_session.php', function(res) {
+  $.get('/api/auth/check_session.php', function(res) {
       if (!res.logged_in || res.role !== 'admin') {
           window.location.href = 'login.html';
       } else {
@@ -54,54 +69,86 @@ $(document).ready(function() {
   });
 
   function loadDashboardStats() {
-      $.get('../api/admin/dashboard_data.php', function(res) {
+      $.get('/api/admin/dashboard_data.php', function(res) {
           if (res.success) {
               $('#studentCount').text(res.stats.students);
               $('#teacherCount').text(res.stats.teachers);
               $('#moduleCount').text(res.stats.modules);
               $('#sessionCount').text(res.stats.sessions);
           }
+          else {
+            console.error('Error loading stats:', res.message);
+          }
       });
   }
 
   $('.logout-btn').click(function() {
-      $.get('../api/auth/logout.php', function() {
+      $.get('/api/auth/logout.php', function() {
           window.location.href = 'login.html';
       });
   });
 
   $('#createTeacherBtn').click(function() {
-      const full_name = $('#teacherFullName').val().trim();
-      const email = $('#teacherEmail').val().trim();
-      const password = $('#teacherPassword').val().trim();
+      const payload = {
+          full_name: $('#teacherFullName').val().trim(),
+          email: $('#teacherEmail').val().trim(),
+          password: $('#teacherPassword').val().trim()
+      };
 
-      if (!full_name || !email || !password) {
-          $('#teacherMsg').addClass('error').removeClass('status')
-                          .text('All fields are required.');
+      if (!payload.full_name || !payload.email || !payload.password) {
+          $('#teacherMsg').addClass('error').text('All fields are required.');
           return;
       }
 
-      const payload = { full_name, email, password };
-
       $.ajax({
-          url: '../api/admin/create_teacher.php',
+          url: '/api/admin/create_teacher.php',
           method: 'POST',
           contentType: 'application/json',
           data: JSON.stringify(payload),
           success: function(res) {
               if (res.success) {
                   $('#teacherMsg').removeClass('error').addClass('status')
-                                  .text('✅ ' + res.message);
+                                  .text('✅ ' + res.message + ' Matricule: ' + res.teacher.matricule);
                   $('#teacherFullName, #teacherEmail, #teacherPassword').val('');
                   loadDashboardStats();
               } else {
-                  $('#teacherMsg').removeClass('status').addClass('error')
-                                  .text('❌ ' + (res.message || 'Error occurred'));
+                  $('#teacherMsg').removeClass('status').addClass('error').text('❌ ' + res.message);
               }
           },
           error: function() {
-              $('#teacherMsg').removeClass('status').addClass('error')
-                              .text('Server connection failed.');
+              $('#teacherMsg').removeClass('status').addClass('error').text('Server connection failed.');
+          }
+      });
+  });
+
+  $('#createStudentBtn').click(function() {
+      const payload = {
+          full_name: $('#studentFullName').val().trim(),
+          password: $('#studentPassword').val().trim()
+      };
+
+      if (!payload.full_name || !payload.password) {
+          $('#studentMsg').addClass('error').text('All fields are required.');
+          return;
+      }
+
+      $.ajax({
+          url: '/api/admin/create_student.php',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(payload),
+          success: function(res) {
+              if (res.success) {
+                  $('#studentMsg').removeClass('error').addClass('status')
+                                  .text('✅ ' + res.message + ' Matricule: ' + res.student.matricule);
+                  $('#studentFullName, #studentPassword').val('');
+                  loadDashboardStats();
+              } else {
+                  $('#studentMsg').removeClass('status').addClass('error').text('❌ ' + res.message);
+              }
+          },
+          error: function() {
+              $('#studentMsg').removeClass('status').addClass('error').text('Server connection failed.');
           }
       });
   });
