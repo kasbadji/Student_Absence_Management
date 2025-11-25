@@ -86,237 +86,41 @@
     </table>
 </div>
 
-<script>
-$(document).ready(function () {
+<h3>Modules</h3>
+<div>
+  <input type="text" id="moduleTitle" placeholder="Title">
+  <input type="text" id="moduleCode" placeholder="Code">
+  <button id="createModuleBtn">Add Module</button>
+</div>
+<table border="1">
+  <thead>
+    <tr><th>ID</th><th>Title</th><th>Code</th><th>Actions</th></tr>
+  </thead>
+  <tbody id="moduleRows"></tbody>
+</table>
 
-  // SESSION CHECK
-  $.get('/api/auth/check_session.php', function (res) {
-    if (!res.logged_in || res.role !== 'admin') {
-      window.location.href = 'login.html';
-    } else {
-      $('#adminName').text(res.full_name);
-      loadDashboardStats();
-      loadTeachers();
-      loadStudents();
-    }
-  });
 
-  // LOGOUT
-  $('.logout-btn').click(function () {
-    $.get('/api/auth/logout.php', function () {
-      window.location.href = 'login.html';
-    });
-  });
+<h3>Groups</h3>
+<div>
+  <input type="text" id="groupName" placeholder="Group Name">
+  <button id="createGroupBtn">Add Group</button>
+</div>
 
-  // DASHBOARD STATS
-  function loadDashboardStats() {
-    $.get('/api/admin/dashboard_data.php', function (res) {
-      if (res.success) {
-        $('#studentCount').text(res.stats.students);
-        $('#teacherCount').text(res.stats.teachers);
-        $('#moduleCount').text(res.stats.modules);
-        $('#sessionCount').text(res.stats.sessions);
-      } else {
-        console.error('Error loading stats:', res.message);
-      }
-    });
-  }
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="groupRows"></tbody>
+</table>
 
-  // CREATE TEACHER
-  $('#createTeacherBtn').click(function () {
-    const payload = {
-      full_name: $('#teacherFullName').val().trim(),
-      email: $('#teacherEmail').val().trim(),
-      password: $('#teacherPassword').val().trim(),
-    };
-
-    if (!payload.full_name || !payload.email || !payload.password) {
-      $('#teacherMsg').addClass('error').text('All fields are required.');
-      return;
-    }
-
-    $.ajax({
-      url: '/api/admin/users/create_teacher.php',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(payload),
-      success: function (res) {
-        if (res.success) {
-          $('#teacherMsg')
-            .removeClass('error')
-            .addClass('status')
-            .text('✅ ' + res.message + ' Matricule: ' + res.teacher.matricule);
-          $('#teacherFullName, #teacherEmail, #teacherPassword').val('');
-          loadDashboardStats();
-          loadTeachers();
-        } else {
-          $('#teacherMsg')
-            .removeClass('status')
-            .addClass('error')
-            .text('❌ ' + res.message);
-        }
-      },
-      error: function () {
-        $('#teacherMsg')
-          .removeClass('status')
-          .addClass('error')
-          .text('Server connection failed.');
-      },
-    });
-  });
-
-  // CREATE STUDENT
-  $('#createStudentBtn').click(function () {
-    const payload = {
-      full_name: $('#studentFullName').val().trim(),
-      password: $('#studentPassword').val().trim(),
-    };
-
-    if (!payload.full_name || !payload.password) {
-      $('#studentMsg').addClass('error').text('All fields are required.');
-      return;
-    }
-
-    $.ajax({
-      url: '/api/admin/users/create_student.php',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(payload),
-      success: function (res) {
-        if (res.success) {
-          $('#studentMsg')
-            .removeClass('error')
-            .addClass('status')
-            .text('✅ ' + res.message + ' Matricule: ' + res.student.matricule);
-          $('#studentFullName, #studentPassword').val('');
-          loadDashboardStats();
-          loadStudents();
-        } else {
-          $('#studentMsg')
-            .removeClass('status')
-            .addClass('error')
-            .text('❌ ' + res.message);
-        }
-      },
-      error: function () {
-        $('#studentMsg')
-          .removeClass('status')
-          .addClass('error')
-          .text('Server connection failed.');
-      },
-    });
-  });
-
-  // LOAD TEACHERS
-  function loadTeachers() {
-    $.get('/api/admin/users/get_all_teachers.php', function (res) {
-      if (res.success) {
-        const rows = res.teachers
-          .map(
-            (t) => `
-          <tr>
-            <td>${t.teacher_id}</td>
-            <td>${t.full_name}</td>
-            <td>${t.email || '-'}</td>
-            <td>${t.matricule}</td>
-            <td>
-              <button class="edit-btn"
-                      data-id="${t.user_id}"
-                      data-name="${t.full_name}"
-                      data-email="${t.email || ''}"
-                      >Edit</button>
-              <button class="delete-btn"
-              data-id="${t.user_id}"
-              >Delete</button>
-            </td>
-          </tr>`
-          )
-          .join('');
-        $('#teacherRows').html(rows);
-      } else {
-        $('#teacherRows').html(
-          '<tr><td colspan="5">Error loading teachers.</td></tr>'
-        );
-      }
-    });
-  }
-
-  // LOAD STUDENTS
-  function loadStudents() {
-    $.get('/api/admin/users/get_all_students.php', function (res) {
-      if (res.success) {
-        const rows = res.students
-          .map(
-            (s) => `
-          <tr>
-            <td>${s.student_id}</td>
-            <td>${s.full_name}</td>
-            <td>${s.matricule}</td>
-            <td>
-              <button class="edit-btn"
-                      data-id="${s.user_id}"
-                      data-name="${s.full_name}"
-                      >Edit</button>
-              <button class="delete-btn"
-                      data-id="${s.user_id}"
-                      >Delete</button>
-            </td>
-          </tr>`
-          )
-          .join('');
-        $('#studentRows').html(rows);
-      } else {
-        $('#studentRows').html(
-          '<tr><td colspan="5">Error loading students.</td></tr>'
-        );
-      }
-    });
-  }
-
-  // EDIT + DELETE HANDLERS (delegated)
-  $(document).on('click', '.edit-btn', function () {
-    const id = $(this).data('id');
-    const name = $(this).data('name');
-    const email = $(this).data('email');
-    const newName = prompt('New name:', name);
-    const newEmail = prompt('New email:', email);
-    if (!newName || !newEmail) return;
-    const newPassword = prompt('New password (leave blank to keep current):', '');
-
-    $.ajax({
-      url: '/api/admin/users/update_user.php',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        user_id: id,
-        full_name: newName,
-        email: newEmail,
-        password: newPassword,
-      }),
-      success: function (res) {
-        alert(res.message);
-        loadTeachers();
-        loadStudents();
-      },
-    });
-  });
-
-  $(document).on('click', '.delete-btn', function () {
-    const id = $(this).data('id');
-    if (!confirm('Delete this user?')) return;
-    $.ajax({
-      url: '/api/admin/users/delete_user.php',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({ user_id: id }),
-      success: function (res) {
-        alert(res.message);
-        loadTeachers();
-        loadStudents();
-      },
-    });
-  });
-});
-</script>
+  <script src="js/admin/teachers.js"></script>
+  <script src="js/admin/students.js"></script>
+  <script src="js/admin/modules.js"></script>
+  <script src="js/admin/groups.js"></script>
+  <script src="js/admin/dashboard.js"></script>
 </body>
 </html>
