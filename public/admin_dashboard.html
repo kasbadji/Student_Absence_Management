@@ -220,8 +220,14 @@ $(document).ready(function () {
             <td>${t.email || '-'}</td>
             <td>${t.matricule}</td>
             <td>
-              <button class="edit-btn" data-id="${t.user_id}" data-name="${t.full_name}" data-email="${t.email || ''}">Edit</button>
-              <button class="delete-btn" data-id="${t.user_id}">Delete</button>
+              <button class="edit-btn"
+                      data-id="${t.user_id}"
+                      data-name="${t.full_name}"
+                      data-email="${t.email || ''}"
+                      >Edit</button>
+              <button class="delete-btn"
+              data-id="${t.user_id}"
+              >Delete</button>
             </td>
           </tr>`
           )
@@ -247,8 +253,13 @@ $(document).ready(function () {
             <td>${s.full_name}</td>
             <td>${s.matricule}</td>
             <td>
-              <button class="edit-btn" data-id="${s.user_id}" data-name="${s.full_name}" data-email="${s.email || ''}">Edit</button>
-              <button class="delete-btn" data-id="${s.user_id}">Delete</button>
+              <button class="edit-btn"
+                      data-id="${s.user_id}"
+                      data-name="${s.full_name}"
+                      >Edit</button>
+              <button class="delete-btn"
+                      data-id="${s.user_id}"
+                      >Delete</button>
             </td>
           </tr>`
           )
