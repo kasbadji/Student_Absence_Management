@@ -35,6 +35,9 @@
         <form id="create-student">
           <input type="text" id="studentFullName" placeholder="Full Name" required />
           <input type="password" id="studentPassword" placeholder="Password" required />
+          <select id="studentGroup">
+            <option value="">Group</option>
+          </select>
           <button id="createStudentBtn" type="button">Create Student</button>
         </form>
         <p id="studentMsg" class="status"></p>
@@ -48,6 +51,7 @@
               <th>ID</th>
               <th>Full Name</th>
               <th>Matricule</th>
+              <th>Group</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -62,5 +66,6 @@
   <script src="js/common.js"></script>
   <script src="js/students.js"></script>
   <script src="js/edit_modal.js"></script>
+  <script src="js/groups.js"></script>
 </body>
 </html>

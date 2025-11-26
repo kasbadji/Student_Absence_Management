@@ -1,56 +1,54 @@
 <?php
-header('Content-Type: application/json');
 session_start();
+header('Content-Type: application/json');
 require_once __DIR__ . '/../../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
-    exit;
-}
-
-// Accept JSON payload and allow optional fields (email, password).
-$data = json_decode(file_get_contents('php://input'), true);
-$user_id = $data['user_id'] ?? null;
-$full_name = isset($data['full_name']) ? trim($data['full_name']) : null;
-$email = isset($data['email']) ? trim($data['email']) : null;
-$password = isset($data['password']) ? trim($data['password']) : null;
-
-if (!$user_id || empty($full_name)) {
-    echo json_encode([
-        'success'=> false,
-        'message'=> 'user_id and full_name are required'
-    ]);
-    exit;
+  echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+  exit;
 }
 
 try {
-    // Build dynamic SQL so we only update fields provided by the client.
-    $setParts = ['full_name = :full_name'];
-    $params = [':full_name' => $full_name, ':user_id' => $user_id];
+  $data = json_decode(file_get_contents('php://input'), true);
+  $user_id   = $data['user_id'] ?? null;
+  $full_name = trim($data['full_name'] ?? '');
+  $email     = trim($data['email'] ?? '');
+  $password  = trim($data['password'] ?? '');
+  $group_id  = $data['group_id'] ?? null;     // 👈 New
 
-    if ($email !== null && $email !== '') {
-        $setParts[] = 'email = :email';
-        $params[':email'] = $email;
-    }
+  if (!$user_id) {
+    echo json_encode(['success' => false, 'message' => 'Missing user_id.']);
+    exit;
+  }
 
-    if ($password !== null && $password !== '') {
-        $setParts[] = 'password_hash = :password_hash';
-        $params[':password_hash'] = password_hash($password, PASSWORD_BCRYPT);
-    }
+  // ---------- Update users table ----------
+  $fields = ['full_name = :full_name'];
+  $params = ['full_name' => $full_name, 'user_id' => $user_id];
 
-    $sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
+  if (!empty($email)) {
+    $fields[] = 'email = :email';
+    $params['email'] = $email;
+  }
+  if (!empty($password)) {
+    $fields[] = 'password_hash = :password_hash';
+    $params['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+  }
 
-    echo json_encode([
-        'success'=> true,
-        'message'=> 'User updated successfully'
-    ]);
+  $sql = 'UPDATE users SET ' . implode(', ', $fields) . ' WHERE user_id = :user_id';
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute($params);
+
+  // ---------- Update group (students table) ----------
+  if ($group_id !== null && $group_id !== '') {
+    $stmt = $pdo->prepare('UPDATE students SET group_id = :gid WHERE user_id = :uid');
+    $stmt->execute(['gid' => $group_id, 'uid' => $user_id]);
+  }
+
+  echo json_encode(['success' => true, 'message' => 'User updated successfully']);
 }
 catch (PDOException $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage()
-    ]);
+  echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-?>
+catch (Exception $e) {
+  echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}

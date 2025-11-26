@@ -12,13 +12,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 try {
     $input = json_decode(file_get_contents('php://input'), true);
 
-    if (empty($input['full_name']) || empty($input['password'])) {
+    $full_name = trim($input['full_name']);
+    $password = trim($input['password']);
+    $group_id = $input['group_id'] ?? null;
+
+    if (empty($full_name) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'Full name and password are required']);
         exit;
     }
-
-    $full_name = trim($input['full_name']);
-    $password = trim($input['password']);
 
     //! Hash password
     $hashed = password_hash($password, PASSWORD_DEFAULT);
@@ -45,12 +46,13 @@ try {
 
     //! Insert into students table
     $stmt = $pdo->prepare("
-        INSERT INTO students (user_id, matricule)
-        VALUES (:user_id, :matricule)
+        INSERT INTO students (user_id, matricule, group_id)
+        VALUES (:user_id, :matricule, :group_id)
     ");
     $stmt->execute([
         'user_id' => $user_id,
-        'matricule' => $matricule
+        'matricule' => $matricule,
+        'group_id' => $group_id
     ]);
 
     //! Return success
@@ -60,18 +62,16 @@ try {
         'student' => [
             'user_id' => $user_id,
             'full_name' => $full_name,
-            'matricule' => $matricule
-        ]
-        ,
-        'debug' => [
-            'session_id' => session_id(),
-            'session' => isset($_SESSION) ? $_SESSION : null,
-            'cookies' => isset($_COOKIE) ? $_COOKIE : null
+            'matricule' => $matricule,
+            'group_id' => $group_id
         ]
     ]);
-} catch (PDOException $e) {
+
+}
+catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
-} catch (Exception $e) {
+}
+catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>
