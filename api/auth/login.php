@@ -3,6 +3,9 @@
 //? Student login with matricule and password (Table students + users)
 //! password hashed
 header('Content-Type: application/json');
+// Ensure session cookie is available site-wide so frontend requests to
+// different /api subpaths include the session cookie.
+session_set_cookie_params(0, '/');
 session_start();
 
 require_once __DIR__ . '/../config/db.php';

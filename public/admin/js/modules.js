@@ -1,9 +1,10 @@
 // js/admin/modules.js
+$(document).ready(function () {
+checkSession(loadModules);
 
-// ---------------- Load all modules ----------------
 function loadModules() {
   $.ajax({
-    url: '/api/admin/modules/get_all_modules.php',
+    url: API_BASE + '/admin/modules/get_all_modules.php',
     method: 'GET',
     cache: false,
     success: function (res) {
@@ -46,7 +47,7 @@ $(document).on('click', '#createModuleBtn', function () {
   }
 
   $.ajax({
-    url: '/api/admin/modules/create_module.php',
+    url: API_BASE + '/admin/modules/create_module.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ title, code }),
@@ -65,24 +66,25 @@ $(document).on('click', '#createModuleBtn', function () {
 
 // ---------------- Edit Module ----------------
 $(document).on('click', '.edit-module-btn', function () {
-  console.log('modules.js: edit-module-btn clicked', this, $(this).data());
+
   const id = $(this).data('id');
   const oldTitle = $(this).data('title');
   const oldCode = $(this).data('code');
+
   openEditModal({
     title: 'Edit Module',
     fields: [
       { name: 'title', label: 'Title', type: 'text', value: oldTitle, required: true },
       { name: 'code', label: 'Code', type: 'text', value: oldCode, required: true }
     ],
+
     onSubmit(values) {
       if (!values.title || !values.code) return alert('All fields are required.');
 
       const updatePayload = { module_id: id, title: values.title.trim(), code: values.code.trim() };
-      console.log('modules.js: sending update_module payload', updatePayload);
 
       $.ajax({
-        url: '/api/admin/modules/update_module.php',
+        url: API_BASE + '/admin/modules/update_module.php',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updatePayload),
@@ -108,7 +110,7 @@ $(document).on('click', '.delete-module-btn', function () {
   console.log('modules.js: sending delete_module id', id);
 
   $.ajax({
-    url: '/api/admin/modules/delete_module.php',
+    url: API_BASE + '/admin/modules/delete_module.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ module_id: id }),
@@ -121,4 +123,5 @@ $(document).on('click', '.delete-module-btn', function () {
       alert('Server connection failed.');
     }
   });
+});
 });

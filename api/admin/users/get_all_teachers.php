@@ -2,7 +2,8 @@
 header('Content-Type: application/json');
 session_start();
 require_once __DIR__ . '/../../config/db.php';
-if (!isset($pdo)) die(json_encode(['success'=>false,'message'=>'PDO not connected']));
+if (!isset($pdo))
+    die(json_encode(['success' => false, 'message' => 'PDO not connected']));
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
     exit;
@@ -25,14 +26,20 @@ try {
     $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
-        "success"=> true,
-        "teachers"=> $teachers
+        "success" => true,
+        "teachers" => $teachers
+        ,
+        'debug' => [
+            'session_id' => session_id(),
+            'session' => isset($_SESSION) ? $_SESSION : null,
+            'cookies' => isset($_COOKIE) ? $_COOKIE : null
+        ]
     ]);
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()
     ]);
 }
 ?>
+

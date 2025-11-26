@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teachers | Admin Panel</title>
+
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+
+    <nav class="sidebar">
+      <h2>Admin Panel</h2>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="teachers.html" class="active">Teachers</a></li>
+        <li><a href="students.html">Students</a></li>
+        <li><a href="modules.html">Modules</a></li>
+        <li><a href="groups.html">Groups</a></li>
+      </ul>
+      <button class="logout-btn">Logout</button>
+    </nav>
+
+    <main class="dashboard-content">
+      <header>
+        <h2>Teachers Management</h2>
+        <p>Welcome, <span id="adminName"></span></p>
+      </header>
+
+      <section class="form-section">
+        <h3>Create New Teacher</h3>
+        <form id="create-teacher">
+          <input type="text" id="teacherFullName" placeholder="Full Name" required />
+          <input type="email" id="teacherEmail" placeholder="Email" required />
+          <input type="password" id="teacherPassword" placeholder="Password" required />
+          <button id="createTeacherBtn" type="button">Create Teacher</button>
+        </form>
+        <p id="teacherMsg" class="status"></p>
+      </section>
+
+      <section class="table-section">
+        <h3>All Teachers</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Matricule</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="teacherRows"></tbody>
+        </table>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/teachers.js"></script>
+  <script src="js/edit_modal.js"></script>
+</body>
+</html>

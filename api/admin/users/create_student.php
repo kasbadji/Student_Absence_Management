@@ -24,16 +24,21 @@ try {
     $hashed = password_hash($password, PASSWORD_DEFAULT);
 
     //! Insert into users table
-    $stmt = $pdo->prepare("
-        INSERT INTO users (full_name, email, password_hash, role, created_at)
+    $stmt = $pdo->prepare(
+        "INSERT INTO users (full_name, email, password_hash, role, created_at)
         VALUES (:full_name, NULL, :password_hash, 'student', NOW())
-        RETURNING user_id
-    ");
+        RETURNING user_id"
+    );
     $stmt->execute([
         'full_name' => $full_name,
         'password_hash' => $hashed
     ]);
-    $user_id = $stmt->fetchColumn();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user_id = $row['user_id'] ?? null;
+
+    if (!$user_id) {
+        throw new Exception('Failed to obtain new user_id after insert');
+    }
 
     //! Generate unique matricule like STD0007
     $matricule = 'STD' . str_pad((string) $user_id, 4, '0', STR_PAD_LEFT);
@@ -56,6 +61,12 @@ try {
             'user_id' => $user_id,
             'full_name' => $full_name,
             'matricule' => $matricule
+        ]
+        ,
+        'debug' => [
+            'session_id' => session_id(),
+            'session' => isset($_SESSION) ? $_SESSION : null,
+            'cookies' => isset($_COOKIE) ? $_COOKIE : null
         ]
     ]);
 } catch (PDOException $e) {

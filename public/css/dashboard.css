@@ -1,0 +1,133 @@
+/* ---- GLOBAL ---- */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+.dashboard-wrapper {
+  display: flex;
+  height: 100vh;
+  color: #333;
+}
+
+/* ---- SIDEBAR ---- */
+.sidebar {
+  width: 220px;
+  background-color: #1e1e2f;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+}
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #4ea7ff;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+.sidebar li { margin: 8px 0; }
+
+.sidebar a, .sidebar button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 15px;
+  border: none;
+  text-decoration: none;
+  color: #ddd;
+  background: none;
+  text-align: left;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.sidebar a.active,
+.sidebar a:hover,
+.sidebar button:hover {
+  background-color: #37375a;
+}
+
+/* ---- MAIN CONTENT ---- */
+.dashboard-content {
+  flex-grow: 1;
+  background-color: #f5f6fa;
+  padding: 25px;
+  overflow-y: auto;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+/* ---- STATS CARDS ---- */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  flex: 1 1 190px;
+  text-align: center;
+}
+
+/* ===== TABLES ===== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.data-table th, .data-table td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 14px;
+}
+.data-table th {
+  background-color: #efefef;
+}
+.data-table button {
+  margin-right: 4px;
+  padding: 4px 8px;
+  border: none;
+  background-color: #4ea7ff;
+  color: #fff;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.data-table button.delete-teacher-btn {
+  background-color: #d44;
+}
+
+/* ===== FORM ===== */
+.form-section input {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 8px;
+  padding: 6px;
+}
+.form-section button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.status {
+  margin-top: 8px;
+  color: #007700;
+}
+.status.error {
+  color: #c00;
+}
+.dashboard-content h2 { color:#004aad; }
+

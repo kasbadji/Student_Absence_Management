@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 try {
-    $query ="
+    $query = "
         SELECT
             s.student_id,
             s.matricule,
@@ -25,14 +25,20 @@ try {
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
-        "success"=> true,
-        "students"=> $students
+        "success" => true,
+        "students" => $students
+        ,
+        'debug' => [
+            'session_id' => session_id(),
+            'session' => isset($_SESSION) ? $_SESSION : null,
+            'cookies' => isset($_COOKIE) ? $_COOKIE : null
+        ]
     ]);
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()
     ]);
 }
 ?>
+

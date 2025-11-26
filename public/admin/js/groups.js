@@ -1,9 +1,11 @@
 // js/admin/groups.js
+$(document).ready(function () {
 
+checkSession(loadGroups);
 // ---------------- Load all groups ----------------
 function loadGroups() {
   $.ajax({
-    url: '/api/admin/groups/get_all_groups.php',
+    url: API_BASE + '/admin/groups/get_all_groups.php',
     method: 'GET',
     cache: false,
     success: function (res) {
@@ -42,7 +44,7 @@ $(document).on('click', '#createGroupBtn', function () {
   }
 
   $.ajax({
-    url: '/api/admin/groups/create_group.php',
+    url: API_BASE + '/admin/groups/create_group.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ name }),
@@ -75,7 +77,7 @@ $(document).on('click', '.edit-group-btn', function () {
       console.log('groups.js: sending update_group payload', updatePayload);
 
       $.ajax({
-        url: '/api/admin/groups/update_group.php',
+        url: API_BASE + '/admin/groups/update_group.php',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(updatePayload),
@@ -99,7 +101,7 @@ $(document).on('click', '.delete-group-btn', function () {
   const id = $(this).data('id');
 
   $.ajax({
-    url: '/api/admin/groups/delete_group.php',
+    url: API_BASE + '/admin/groups/delete_group.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ group_id: id }),
@@ -112,4 +114,5 @@ $(document).on('click', '.delete-group-btn', function () {
       alert('Server connection failed.');
     }
   });
+});
 });

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students | Admin Panel</title>
+
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+
+    <nav class="sidebar">
+      <h2>Admin Panel</h2>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="teachers.html">Teachers</a></li>
+        <li><a href="students.html" class="active">Students</a></li>
+        <li><a href="modules.html">Modules</a></li>
+        <li><a href="groups.html">Groups</a></li>
+      </ul>
+      <button class="logout-btn">Logout</button>
+    </nav>
+
+    <main class="dashboard-content">
+      <header>
+        <h2>Students Management</h2>
+        <p>Welcome, <span id="adminName"></span></p>
+      </header>
+
+      <section class="form-section">
+        <h3>Create New Student</h3>
+        <form id="create-student">
+          <input type="text" id="studentFullName" placeholder="Full Name" required />
+          <input type="password" id="studentPassword" placeholder="Password" required />
+          <button id="createStudentBtn" type="button">Create Student</button>
+        </form>
+        <p id="studentMsg" class="status"></p>
+      </section>
+
+      <section class="table-section">
+        <h3>All Students</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Matricule</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentRows"></tbody>
+        </table>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/students.js"></script>
+  <script src="js/edit_modal.js"></script>
+</body>
+</html>

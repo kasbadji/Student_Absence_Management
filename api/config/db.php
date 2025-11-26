@@ -25,7 +25,9 @@ $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['dat
 try {
     $pdo = new PDO($dsn, $config['username'], $config['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-}
-catch (PDOException $e) {
+    // Disable emulated prepares to ensure native prepared statements
+    // (helps with PostgreSQL RETURNING and type handling)
+    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+} catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }

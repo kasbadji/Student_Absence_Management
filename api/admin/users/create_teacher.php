@@ -21,8 +21,8 @@ try {
     }
 
     $full_name = trim($input['full_name']);
-    $email     = trim($input['email']);
-    $password  = trim($input['password']);
+    $email = trim($input['email']);
+    $password = trim($input['password']);
 
     //! Check for existing email
     $stmt = $pdo->prepare("SELECT 1 FROM users WHERE email = :email");
@@ -36,28 +36,30 @@ try {
     $hashed = password_hash($password, PASSWORD_DEFAULT);
 
     //! Insert into users table
-    $stmt = $pdo->prepare("
-        INSERT INTO users (full_name, email, password_hash, role, created_at)
-        VALUES (:full_name, :email, :password_hash, 'teacher', NOW())
-        RETURNING user_id
-    ");
+    $stmt = $pdo->prepare(
+        "INSERT INTO users (full_name, email, password_hash, role, created_at)
+            VALUES (:full_name, :email, :password_hash, 'teacher', NOW())
+            RETURNING user_id"
+    );
     $stmt->execute([
-        'full_name'     => $full_name,
-        'email'         => $email,
+        'full_name' => $full_name,
+        'email' => $email,
         'password_hash' => $hashed
     ]);
-    $user_id = $stmt->fetchColumn();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user_id = $row['user_id'] ?? null;
+
+    if (!$user_id) {
+        throw new Exception('Failed to obtain new user_id after insert');
+    }
 
     //! Generate a unique teacher matricule
-    $matricule = 'TCH' . str_pad((string)$user_id, 4, '0', STR_PAD_LEFT);
+    $matricule = 'TCH' . str_pad((string) $user_id, 4, '0', STR_PAD_LEFT);
 
     //! Insert into teachers table with user_id and matricule
-    $stmt = $pdo->prepare("
-        INSERT INTO teachers (user_id, matricule)
-        VALUES (:user_id, :matricule)
-    ");
+    $stmt = $pdo->prepare("INSERT INTO teachers (user_id, matricule) VALUES (:user_id, :matricule)");
     $stmt->execute([
-        'user_id'   => $user_id,
+        'user_id' => $user_id,
         'matricule' => $matricule
     ]);
 
@@ -66,17 +68,22 @@ try {
         'success' => true,
         'message' => 'Teacher created successfully.',
         'teacher' => [
-            'user_id'   => $user_id,
+            'user_id' => $user_id,
             'full_name' => $full_name,
-            'email'     => $email,
+            'email' => $email,
             'matricule' => $matricule
         ]
+        ,
+        'debug' => [
+            'session_id' => session_id(),
+            'session' => isset($_SESSION) ? $_SESSION : null,
+            'cookies' => isset($_COOKIE) ? $_COOKIE : null
+        ]
     ]);
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>
+

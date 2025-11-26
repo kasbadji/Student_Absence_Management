@@ -22,17 +22,22 @@
         password: $('#password').val()
     };
 
+    // Compute API base relative to possible `/public/` mount
+    const _p = location.pathname;
+    const _idx = _p.indexOf('/public/');
+    const API_BASE_LOCAL = _idx !== -1 ? _p.slice(0, _idx) + '/api' : '/api';
+
     $.ajax({
-        url: '../api/auth/login.php',
+        url: API_BASE_LOCAL + '/auth/login.php',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(res) {
         if (res.success) {
             $('#message').text(res.message);
-            if (res.role === 'admin') window.location.href = 'admin_dashboard.html';
-            else if (res.role === 'teacher') window.location.href = 'teacher_dashboard.html';
-            else if (res.role === 'student') window.location.href = 'student_dashboard.html';
+            if (res.role === 'admin') window.location.href = 'admin/dashboard.html';
+            else if (res.role === 'teacher') window.location.href = 'teacher/dashboard.html';
+            else if (res.role === 'student') window.location.href = 'student/dashboard.html';
         } else {
             $('#message').text(res.message);
         }

@@ -1,7 +1,5 @@
-// js/admin/edit_modal.js
-// Reusable modal for editing records (replaces window.prompt flows)
+
 $(function () {
-  // Append modal HTML to body
   const modalHtml = `
   <div id="editModal" style="display:none; position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999;">
     <div style="background:#fff; width:400px; max-width:95%; margin:80px auto; padding:20px; border-radius:6px; box-shadow:0 6px 24px rgba(0,0,0,0.3);">
@@ -19,7 +17,7 @@ $(function () {
   $('body').append(modalHtml);
 
   function openEditModal(opts) {
-    // opts: { title, fields: [ {name,label,type,value,required} ], onSubmit(values) }
+
     const $modal = $('#editModal');
     const $fields = $('#editModalFields').empty();
     $('#editModalTitle').text(opts.title || 'Edit');
@@ -56,6 +54,5 @@ $(function () {
     });
   }
 
-  // Expose globally
   window.openEditModal = openEditModal;
 });

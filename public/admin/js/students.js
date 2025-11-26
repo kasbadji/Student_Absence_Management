@@ -1,9 +1,10 @@
 // js/admin/students.js
-console.log('✅ students.js loaded');
+$(document).ready(function () {
 
+checkSession(loadStudents);
 function loadStudents() {
   $.ajax({
-    url: '/api/admin/users/get_all_students.php',
+    url: API_BASE + '/admin/users/get_all_students.php',
     method: 'GET',
     cache: false,
     success: function (res) {
@@ -18,7 +19,7 @@ function loadStudents() {
           <td>${s.full_name}</td>
           <td>${s.matricule}</td>
           <td>
-            <button type="button" class="edit-student-btn" data-id="${s.user_id}" data-name="${s.full_name}" data-email="${s.email || ''}">Edit</button>
+            <button type="button" class="edit-student-btn" data-id="${s.user_id}" data-name="${s.full_name}">Edit</button>
             <button type="button" class="delete-student-btn" data-id="${s.user_id}">Delete</button>
           </td>
         </tr>`).join('');
@@ -44,7 +45,7 @@ $(document).on('click', '#createStudentBtn', function () {
   }
 
   $.ajax({
-    url: '/api/admin/users/create_student.php',
+    url: API_BASE + '/admin/users/create_student.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(payload),
@@ -87,7 +88,7 @@ $(document).on('click', '.edit-student-btn', function () {
 
 
       $.ajax({
-        url: '/api/admin/users/update_user.php',
+        url: API_BASE + '/admin/users/update_user.php',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(payload),
@@ -107,12 +108,19 @@ $(document).on('click', '.edit-student-btn', function () {
 
 // ---------------- Delete Student ----------------
 $(document).on('click', '.delete-student-btn', function () {
+  const $btn = $(this);
+  const id = $btn.data('id');
 
-  const id = $(this).data('id');
+  window.__deletingUsers = window.__deletingUsers || new Set();
+  if (window.__deletingUsers.has(id)) return console.warn('Delete in progress for', id);
 
+  if (!confirm('Are you sure you want to delete this user?')) return;
+
+  window.__deletingUsers.add(id);
+  $btn.prop('disabled', true);
 
   $.ajax({
-    url: '/api/admin/users/delete_user.php',
+    url: API_BASE + '/admin/users/delete_user.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ user_id: id }),
@@ -124,6 +132,11 @@ $(document).on('click', '.delete-student-btn', function () {
     error: function (xhr, status, err) {
       console.error('delete_user.php error:', status, err, xhr && xhr.responseText);
       alert('Server connection failed.');
+    },
+    complete: function () {
+      window.__deletingUsers.delete(id);
+      $btn.prop('disabled', false);
     }
   });
+});
 });
