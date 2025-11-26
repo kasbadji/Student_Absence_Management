@@ -69,29 +69,33 @@ $(document).on('click', '.edit-module-btn', function () {
   const id = $(this).data('id');
   const oldTitle = $(this).data('title');
   const oldCode = $(this).data('code');
+  openEditModal({
+    title: 'Edit Module',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', value: oldTitle, required: true },
+      { name: 'code', label: 'Code', type: 'text', value: oldCode, required: true }
+    ],
+    onSubmit(values) {
+      if (!values.title || !values.code) return alert('All fields are required.');
 
-  const newTitle = prompt('New title:', oldTitle);
-  if (!newTitle) return;
+      const updatePayload = { module_id: id, title: values.title.trim(), code: values.code.trim() };
+      console.log('modules.js: sending update_module payload', updatePayload);
 
-  const newCode = prompt('New code:', oldCode);
-  if (!newCode) return;
-
-  const updatePayload = { module_id: id, title: newTitle, code: newCode };
-  console.log('modules.js: sending update_module payload', updatePayload);
-
-  $.ajax({
-    url: '/api/admin/modules/update_module.php',
-    method: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(updatePayload),
-    success: function (res) {
-      console.log('update_module.php response:', res);
-      alert(res.message);
-      if (res.success) loadModules();
-    },
-    error: function (xhr, status, err) {
-      console.error('update_module.php error:', status, err, xhr && xhr.responseText);
-      alert('Server connection failed.');
+      $.ajax({
+        url: '/api/admin/modules/update_module.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(updatePayload),
+        success: function (res) {
+          console.log('update_module.php response:', res);
+          alert(res.message);
+          if (res.success) loadModules();
+        },
+        error: function (xhr, status, err) {
+          console.error('update_module.php error:', status, err, xhr && xhr.responseText);
+          alert('Server connection failed.');
+        }
+      });
     }
   });
 });

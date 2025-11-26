@@ -8,34 +8,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
+// Accept JSON payload and allow optional fields (email, password).
 $data = json_decode(file_get_contents('php://input'), true);
 $user_id = $data['user_id'] ?? null;
-$full_name = trim($data['full_name'] ?? null);
-$email = trim($data['email'] ?? null);
-$password = trim($data['password'] ?? null);
+$full_name = isset($data['full_name']) ? trim($data['full_name']) : null;
+$email = isset($data['email']) ? trim($data['email']) : null;
+$password = isset($data['password']) ? trim($data['password']) : null;
 
-if (!$user_id || empty($full_name) || empty($email)) {
+if (!$user_id || empty($full_name)) {
     echo json_encode([
         'success'=> false,
-        'message'=> 'Missing fields'
-]);
+        'message'=> 'user_id and full_name are required'
+    ]);
     exit;
 }
 
 try {
-    $sql = 'UPDATE users SET full_name = :full_name, email = :email';
-    $params = [
-        'full_name' => $full_name,
-        'email' => $email,
-        'user_id' => $user_id
-    ];
-    if (!empty($password)) {
-        $password_hash = password_hash($password, PASSWORD_BCRYPT);
-        $sql .= ", password_hash = :password_hash";
-        $params['password_hash'] = $password_hash;
+    // Build dynamic SQL so we only update fields provided by the client.
+    $setParts = ['full_name = :full_name'];
+    $params = [':full_name' => $full_name, ':user_id' => $user_id];
+
+    if ($email !== null && $email !== '') {
+        $setParts[] = 'email = :email';
+        $params[':email'] = $email;
     }
 
-    $sql .= " WHERE user_id = :user_id";
+    if ($password !== null && $password !== '') {
+        $setParts[] = 'password_hash = :password_hash';
+        $params[':password_hash'] = password_hash($password, PASSWORD_BCRYPT);
+    }
+
+    $sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id';
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 

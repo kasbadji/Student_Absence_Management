@@ -64,40 +64,50 @@ $(document).on('click', '#createTeacherBtn', function () {
 
 // ---------------- Edit Teacher ----------------
 $(document).on('click', '.edit-teacher-btn', function () {
+  const id        = $(this).data('id');
+  const oldName   = $(this).data('name');
+  const oldEmail  = $(this).data('email');
 
-  const id = $(this).data('id');
-  const oldName = $(this).data('name');
-  const oldEmail = $(this).data('email');
 
+  openEditModal({
+    title: 'Edit Teacher',
+    fields: [
+      { name: 'full_name', label: 'Full Name', type: 'text', value: oldName, required: true },
+      { name: 'email', label: 'Email', type: 'email', value: oldEmail, required: true },
+      { name: 'password', label: 'New Password (leave blank to keep current)', type: 'password', value: '' }
+    ],
+    onSubmit(values) {
+      if (!values.full_name || values.full_name.trim() === '') return alert('Name is required.');
+      if (!values.email || values.email.trim() === '') return alert('Email is required.');
 
-  const newName = prompt('New name:', oldName);
-  if (!newName) return;
-  console.log('test');
+      const payload = {
+        user_id: id,
+        full_name: values.full_name.trim(),
+        email: values.email.trim()
+      };
+      if (values.password && values.password.trim() !== '') payload.password = values.password.trim();
 
-  const newEmail = prompt('New email:', oldEmail);
-  if (!newEmail) return;
+      console.log('teachers.js → sending update_user payload:', payload);
 
-  const password = prompt('New password (leave blank to keep current):', '');
-
-  console.log('test');
-  const payload = { user_id: id, full_name: newName, email: newEmail };
-  if (password) payload.password = password;
-
-  console.log('teachers.js: sending update_user payload', payload);
-
-  $.ajax({
-    url: '/api/admin/users/update_user.php',
-    method: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(payload),
-    success: function (res) {
-      console.log('update_user.php response:', res);
-      alert(res.message);
-      loadTeachers();
-    },
-    error: function (xhr, status, err) {
-      console.error('update_user.php error:', status, err, xhr && xhr.responseText);
-      alert('Server connection failed.');
+      $.ajax({
+        url: '/api/admin/users/update_user.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        success(res) {
+          console.log('update_user.php response:', res);
+          if (res.success) {
+            alert('✅ ' + res.message);
+            loadTeachers();
+          } else {
+            alert('❌ ' + res.message);
+          }
+        },
+        error(xhr, status, err) {
+          console.error('update_user.php error:', status, err, xhr && xhr.responseText);
+          alert('Server connection failed.');
+        }
+      });
     }
   });
 });

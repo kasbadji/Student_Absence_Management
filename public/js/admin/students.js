@@ -1,4 +1,6 @@
 // js/admin/students.js
+console.log('✅ students.js loaded');
+
 function loadStudents() {
   $.ajax({
     url: '/api/admin/users/get_all_students.php',
@@ -62,33 +64,43 @@ $(document).on('click', '#createStudentBtn', function () {
 
 // ---------------- Edit Student ----------------
 $(document).on('click', '.edit-student-btn', function () {
-  console.log('students.js: edit-student-btn clicked', this, $(this).data());
+
+
   const id = $(this).data('id');
   const oldName = $(this).data('name');
-  const newName = prompt('New name:', oldName);
-  if (!newName) return;
-
-  const newPassword = prompt('New password (leave blank to keep current):', '');
-
   const oldEmail = $(this).data('email') || '';
-  const payload = { user_id: id, full_name: newName, email: oldEmail };
-  if (newPassword) payload.password = newPassword;
 
-  console.log('students.js: sending update_user payload', payload);
+  openEditModal({
+    title: 'Edit Student',
+    fields: [
+      { name: 'full_name', label: 'Full Name', type: 'text', value: oldName, required: true },
+      { name: 'password', label: 'New Password (leave blank to keep current)', type: 'password', value: '' }
+    ],
+    onSubmit(values) {
+      if (!values.full_name || values.full_name.trim() === '') {
+        alert('Name is required.');
+        return;
+      }
 
-  $.ajax({
-    url: '/api/admin/users/update_user.php',
-    method: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(payload),
-    success: function (res) {
-      console.log('update_user.php response:', res);
-      alert(res.message);
-      loadStudents();
-    },
-    error: function (xhr, status, err) {
-      console.error('update_user.php error:', status, err, xhr && xhr.responseText);
-      alert('Server connection failed.');
+      const payload = { user_id: id, full_name: values.full_name.trim(), email: oldEmail };
+      if (values.password && values.password.trim() !== '') payload.password = values.password.trim();
+
+
+      $.ajax({
+        url: '/api/admin/users/update_user.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        success: function (res) {
+          console.log('students.js: update_user.php response', res);
+          alert(res.message);
+          loadStudents();
+        },
+        error: function (xhr, status, err) {
+          console.error('update_user.php error:', status, err, xhr && xhr.responseText);
+          alert('Server connection failed.');
+        }
+      });
     }
   });
 });

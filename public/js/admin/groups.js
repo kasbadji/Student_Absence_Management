@@ -64,25 +64,31 @@ $(document).on('click', '.edit-group-btn', function () {
   console.log('groups.js: edit-group-btn clicked', this, $(this).data());
   const id = $(this).data('id');
   const oldName = $(this).data('name');
-  const newName = prompt('New group name:', oldName);
-  if (!newName) return;
+  openEditModal({
+    title: 'Edit Group',
+    fields: [
+      { name: 'name', label: 'Group Name', type: 'text', value: oldName, required: true }
+    ],
+    onSubmit(values) {
+      if (!values.name || values.name.trim() === '') return alert('Group name is required.');
+      const updatePayload = { group_id: id, name: values.name.trim() };
+      console.log('groups.js: sending update_group payload', updatePayload);
 
-  const updatePayload = { group_id: id, name: newName };
-  console.log('groups.js: sending update_group payload', updatePayload);
-
-  $.ajax({
-    url: '/api/admin/groups/update_group.php',
-    method: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(updatePayload),
-    success: function (res) {
-      console.log('update_group.php response:', res);
-      alert(res.message);
-      if (res.success) loadGroups();
-    },
-    error: function (xhr, status, err) {
-      console.error('update_group.php error:', status, err, xhr && xhr.responseText);
-      alert('Server connection failed.');
+      $.ajax({
+        url: '/api/admin/groups/update_group.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(updatePayload),
+        success: function (res) {
+          console.log('update_group.php response:', res);
+          alert(res.message);
+          if (res.success) loadGroups();
+        },
+        error: function (xhr, status, err) {
+          console.error('update_group.php error:', status, err, xhr && xhr.responseText);
+          alert('Server connection failed.');
+        }
+      });
     }
   });
 });
