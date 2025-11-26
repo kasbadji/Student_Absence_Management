@@ -110,6 +110,16 @@ header {
   background-color: #d44;
 }
 
+.data-table button.delete-student-btn {
+  background-color: #d44;
+}
+.data-table button.delete-module-btn {
+  background-color: #d44;
+}
+.data-table button.delete-group-btn {
+  background-color: #d44;
+}
+
 /* ===== FORM ===== */
 .form-section input {
   display: block;
