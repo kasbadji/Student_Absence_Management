@@ -25,6 +25,10 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) AS count FROM modules");
     $stats['modules'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
+    //! count groups
+    $stmt = $pdo->query("SELECT COUNT(*) AS count FROM groups");
+    $stats['groups'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
     //! count sessions
     $stmt = $pdo->query("SELECT COUNT(*) AS count FROM sessions");
     $stats['sessions'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];

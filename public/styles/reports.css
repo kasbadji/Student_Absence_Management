@@ -1,0 +1,61 @@
+/* Reports page styles — imports dashboard base */
+@import "dashboard.css";
+
+.reports-panel {
+    padding: 20px; grid-column: 1 / -1;
+}
+
+.filters.card {
+    padding: 16px; margin-bottom: 16px;
+}
+.filters-row {
+    display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
+}
+.filter-item {
+     display:flex; flex-direction:column; flex:1 1 180px;
+
+    }
+.filter-item input, .filter-item select {
+     padding:8px 10px; border-radius:8px; border:1px solid #eef0f4;
+ }
+
+.stats-row {
+     display:flex; gap:12px; margin-bottom:16px;
+
+    }
+.stat-card {
+     flex:1; padding:14px; background:#fff; border-radius:10px; box-shadow:0 4px 14px rgba(16,24,40,0.04);
+}
+
+.records.card {
+     padding:0;
+}
+
+.records-header {
+ display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid #eef2f6;
+}
+
+.records-table {
+     width:100%; border-collapse:collapse;
+}
+
+.records-table thead th {
+     padding:12px 18px; text-align:left; background:#fbfdff;
+}
+
+.records-table tbody td {
+     padding:12px 18px; border-top:1px solid #f1f5f9;
+}
+
+.status.present {
+     background:#dff6e9; color:#0f5132; padding:6px 10px; border-radius:999px;
+}
+
+.status.absent {
+     background:#ffecec; color:#6b1a1a; padding:6px 10px; border-radius:999px;
+}
+
+@media (max-width: 800px) {
+  .filters-row { flex-direction:column; }
+  .stats-row { flex-direction:column; }
+}

@@ -15,6 +15,7 @@ try {
     $full_name = trim($input['full_name']);
     $password = trim($input['password']);
     $group_id = $input['group_id'] ?? null;
+    $email = isset($input['email']) && $input['email'] !== null ? trim($input['email']) : null;
 
     if (empty($full_name) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'Full name and password are required']);
@@ -27,11 +28,12 @@ try {
     //! Insert into users table
     $stmt = $pdo->prepare(
         "INSERT INTO users (full_name, email, password_hash, role, created_at)
-        VALUES (:full_name, NULL, :password_hash, 'student', NOW())
+        VALUES (:full_name, :email, :password_hash, 'student', NOW())
         RETURNING user_id"
     );
     $stmt->execute([
         'full_name' => $full_name,
+        'email' => $email,
         'password_hash' => $hashed
     ]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -67,11 +69,9 @@ try {
         ]
     ]);
 
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>

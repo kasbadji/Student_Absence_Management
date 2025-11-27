@@ -14,12 +14,18 @@ try {
         SELECT
             t.teacher_id,
             t.matricule,
+            t.group_id,
+            t.module_id,
             u.user_id,
             u.full_name,
             u.email,
-            u.created_at
+            u.created_at,
+            g.name AS group_name,
+            m.title AS title
         FROM teachers t
         JOIN users u ON t.user_id = u.user_id
+        LEFT JOIN groups g ON t.group_id = g.group_id
+        LEFT JOIN modules m ON t.module_id = m.module_id
         ORDER BY u.created_at DESC;
     ";
     $stmt = $pdo->query($query);

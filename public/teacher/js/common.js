@@ -1,4 +1,4 @@
-
+// teacher-specific common functions (based on admin common)
 $(document).ready(function () {
 
   (function detectApiBase() {
@@ -14,11 +14,11 @@ $(document).ready(function () {
       dataType: 'json',
       xhrFields: { withCredentials: true },
       success(res) {
-        if (!res.logged_in || res.role !== 'admin') {
+        if (!res.logged_in || res.role !== 'teacher') {
           window.location.href = '/login.html';
         } else {
-          $('#adminName').text(res.full_name);
-          $('#adminRole').text(res.role);
+          $('#teacherName').text(res.full_name);
+          $('#teacherRole').text(res.role);
 
           if (typeof callback === 'function') callback(res);
         }

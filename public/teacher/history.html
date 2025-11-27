@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>History</title>
+  <link rel="stylesheet" href="../styles/dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <h2>S.A.M</h2>
+        <p>Teacher Portal</p>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <li><a href="my_classes.html"><i class="fas fa-book-open"></i> My Classes</a></li>
+        <li><a href="history.html" class="active"><i class="fas fa-history"></i> History</a></li>
+      </ul>
+    </nav>
+
+    <main class="dashboard-main">
+      <header class="topbar">
+        <div class="page-info">
+          <h1>History</h1>
+          <p id="currentDate"></p>
+        </div>
+        <div class="user-info">
+          <div class="user-card">
+            <i class="fas fa-user-circle"></i>
+            <div>
+              <h4 id="teacherName">Teacher</h4>
+              <p id="teacherRole">Teacher</p>
+            </div>
+          </div>
+          <button class="logout-text logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </header>
+
+      <section>
+        <div class="stat-card" style="padding:1rem;">
+          <p>Attendance history and previous sessions will be listed here (placeholder).</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    const dateEl = document.getElementById('currentDate');
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateEl.textContent = new Date().toLocaleDateString('en-US', options);
+  </script>
+</body>
+</html>
