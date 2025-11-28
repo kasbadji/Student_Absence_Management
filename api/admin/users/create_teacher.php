@@ -3,7 +3,6 @@ session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../config/db.php';
 
-// ✅ Only admin can create teachers
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
     exit;
@@ -12,14 +11,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 try {
     $input = json_decode(file_get_contents('php://input'), true);
 
-    // ✅ Sanitize input
     $full_name = trim($input['full_name'] ?? '');
     $email = trim($input['email'] ?? '');
     $password = trim($input['password'] ?? '');
     $group_id = $input['group_id'] ?? null;
     $module_id = $input['module_id'] ?? null;
+    $session_type = trim($input['session_type'] ?? '');
 
-    // ✅ Validate inputs
     if (empty($full_name) || empty($email) || empty($password)) {
         echo json_encode([
             'success' => false,
@@ -28,7 +26,6 @@ try {
         exit;
     }
 
-    // ✅ Check if email already exists
     $stmt = $pdo->prepare("SELECT 1 FROM users WHERE email = :email");
     $stmt->execute(['email' => $email]);
     if ($stmt->fetch()) {
@@ -36,7 +33,6 @@ try {
         exit;
     }
 
-    // ✅ Optional: Validate group_id and module_id exist
     if ($group_id) {
         $stmt = $pdo->prepare("SELECT 1 FROM groups WHERE group_id = :id");
         $stmt->execute(['id' => $group_id]);
@@ -55,10 +51,29 @@ try {
         }
     }
 
-    // ✅ Hash password
+    if ($module_id && $session_type !== '') {
+        $stmt = $pdo->prepare("SELECT COALESCE(CAST(has_td AS int),0) AS has_td, COALESCE(CAST(has_tp AS int),0) AS has_tp FROM modules WHERE module_id = :id");
+        $stmt->execute(['id' => $module_id]);
+        $m = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$m) {
+            echo json_encode(['success' => false, 'message' => 'Module not found.']);
+            exit;
+        }
+        $session_lower = strtolower($session_type);
+        $needs_td = ($session_lower === 'all') || (strpos($session_lower, 'td') !== false);
+        $needs_tp = ($session_lower === 'all') || (strpos($session_lower, 'tp') !== false);
+        if ($needs_td && empty($m['has_td'])) {
+            echo json_encode(['success' => false, 'message' => 'Selected module does not have TD sessions.']);
+            exit;
+        }
+        if ($needs_tp && empty($m['has_tp'])) {
+            echo json_encode(['success' => false, 'message' => 'Selected module does not have TP sessions.']);
+            exit;
+        }
+    }
+
     $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-    // ✅ Insert into users table
     $stmt = $pdo->prepare("
         INSERT INTO users (full_name, email, password_hash, role, created_at)
         VALUES (:full_name, :email, :password_hash, 'teacher', NOW())
@@ -76,22 +91,41 @@ try {
         throw new Exception('Failed to obtain new user_id after insert');
     }
 
-    // ✅ Generate unique teacher matricule
     $matricule = 'TCH' . str_pad((string) $user_id, 4, '0', STR_PAD_LEFT);
 
-    // ✅ Insert into teachers table (now includes group/module)
-    $stmt = $pdo->prepare("
-        INSERT INTO teachers (user_id, matricule, group_id, module_id)
-        VALUES (:user_id, :matricule, :group_id, :module_id)
-    ");
+    $st = $session_type !== '' ? $session_type : null;
+    if ($st !== null) {
+        $sl = strtolower(trim($st));
+
+        if ($sl === 'all') {
+            $st = 'ALL';
+        } elseif ($sl === 'td/tp' || $sl === 'tdtp') {
+            $st = 'TD/TP';
+        } elseif ($sl === 'td') {
+            $st = 'TD';
+        } elseif ($sl === 'tp') {
+            $st = 'TP';
+        } elseif (
+            $sl === 'cours' || $sl === 'c' || $sl === 'course' ||
+            $sl === 'c/td' || $sl === 'c/tp'
+        ) {
+            $st = 'COUR';
+        } else {
+            $st = 'TD';
+        }
+    }
+
+    $stmt = $pdo->prepare(
+        "INSERT INTO teachers (user_id, matricule, group_id, module_id, session_type)\n        VALUES (:user_id, :matricule, :group_id, :module_id, :session_type)"
+    );
     $stmt->execute([
         'user_id' => $user_id,
         'matricule' => $matricule,
         'group_id' => $group_id,
-        'module_id' => $module_id
+        'module_id' => $module_id,
+        'session_type' => $st
     ]);
 
-    // ✅ Fetch group and module names for response (optional)
     $group_name = null;
     $title = null;
 

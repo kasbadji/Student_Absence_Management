@@ -32,7 +32,6 @@ $(function () {
     $('#editModalSave').text(submitText);
     $('#editModalCancel').text(cancelText);
 
-    // build each field
     opts.fields.forEach(f => {
       const required = f.required ? 'required' : '';
       const val = f.value !== undefined ? f.value : '';
@@ -40,7 +39,6 @@ $(function () {
       let $el;
 
       if (type === 'select') {
-        // support either pre-rendered HTML (`optionsHtml`) or an `options` array of {label,value}
         let optionsHtml = '';
         if (f.optionsHtml) {
           optionsHtml = f.optionsHtml;
@@ -62,24 +60,33 @@ $(function () {
           </div>`
         );
       } else {
-        // support optional placeholder property
         const placeholderAttr = f.placeholder ? `placeholder="${f.placeholder}"` : '';
-        $el = $(
-          `<div class="form-row">
-            <label>${f.label}</label>
-            <input name="${f.name}" type="${type}" value="${val}" ${placeholderAttr} ${required} />
-          </div>`
-        );
+        if (type === 'checkbox') {
+          const checked = (val === true || String(val) === 'true' || String(val) === '1') ? 'checked' : '';
+          $el = $(
+            `<div class="form-row">
+              <label>${f.label}</label>
+              <input name="${f.name}" type="checkbox" value="1" ${checked} ${required} />
+            </div>`
+          );
+        }
+
+        else {
+          $el = $(
+            `<div class="form-row">
+              <label>${f.label}</label>
+              <input name="${f.name}" type="${type}" value="${val}" ${placeholderAttr} ${required} />
+            </div>`
+          );
+        }
       }
 
       $fields.append($el);
     });
 
-    // show modal
     $modal.fadeIn(120);
     $modal.find('input, select').first().focus();
 
-    // cleanup + event bindings
     function cleanup() {
       $modal.fadeOut(120);
       $('#editModalForm').off('submit');
@@ -106,17 +113,22 @@ $(function () {
       e.preventDefault();
       const values = {};
       $modal.find('input, select').each(function () {
-        values[$(this).attr('name')] = $(this).val();
+        const name = $(this).attr('name');
+        if (!name) return;
+        const t = $(this).attr('type');
+        if (t === 'checkbox') {
+          values[name] = $(this).prop('checked');
+        } else {
+          values[name] = $(this).val();
+        }
       });
       cleanup();
       if (typeof opts.onSubmit === 'function') opts.onSubmit(values);
     });
   }
 
-  // expose globally
   window.openEditModal = openEditModal;
 
-  // showConfirm uses openEditModal for consistent styling and behavior
   window.showConfirm = function (message) {
     return new Promise((resolve) => {
       openEditModal({

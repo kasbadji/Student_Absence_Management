@@ -21,24 +21,24 @@ if (!$id) {
 }
 
 try {
-    // Check for referencing rows before deleting to avoid FK violations
+    //! Check for referencing rows before deleting to avoid FK violations
     $refs = [];
 
-    // students
+    //! students
     $stmt = $pdo->prepare('SELECT COUNT(*) AS cnt FROM students WHERE group_id = :id');
     $stmt->execute(['id' => $id]);
     $cnt = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
     if ($cnt > 0)
         $refs['students'] = $cnt;
 
-    // teachers
+    //! teachers
     $stmt = $pdo->prepare('SELECT COUNT(*) AS cnt FROM teachers WHERE group_id = :id');
     $stmt->execute(['id' => $id]);
     $cnt = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
     if ($cnt > 0)
         $refs['teachers'] = $cnt;
 
-    // sessions
+    //! sessions
     $stmt = $pdo->prepare('SELECT COUNT(*) AS cnt FROM sessions WHERE group_id = :id');
     $stmt->execute(['id' => $id]);
     $cnt = (int) $stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
@@ -55,7 +55,7 @@ try {
         exit;
     }
 
-    // Safe to delete
+    //! Safe to delete
     $stmt = $pdo->prepare('DELETE FROM groups WHERE group_id = :id');
     $stmt->execute(['id' => $id]);
 

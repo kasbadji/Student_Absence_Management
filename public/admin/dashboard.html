@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/js/adoptedStyleSheets_polyfill.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
@@ -67,28 +68,35 @@
           <div class="icon purple"><i class="fas fa-layer-group"></i></div>
           <div>
             <p>Total Groups & Modules</p>
-            <h3 id="groupCount">0</h3>
+            <h3 id="groupModuleDisplay">0</h3>
           </div>
         </div>
-      </section>
 
-<section class="quick-actions">
-  <h2>Quick Actions</h2>
-  <div class="actions-grid">
-    <a href="students.html" class="action-btn">
-      <i class="fas fa-user-plus"></i> Add Student
-    </a>
-    <a href="teachers.html" class="action-btn">
-      <i class="fas fa-user-tie"></i> Add Teacher
-    </a>
-    <a href="groups.html" class="action-btn">
-      <i class="fas fa-users"></i> Create Group & modules
-    </a>
-    <a href="reports.html" class="action-btn">
-      <i class="fas fa-chart-pie"></i> View Reports
-    </a>
-  </div>
-</section>
+        <div class="stat-card">
+          <div class="icon orange"><i class="fas fa-arrow-trend-up"></i></div>
+          <div>
+            <p>Attendance Rate</p>
+            <h3 id="attendanceRateDashboard">0%</h3>
+          </div>
+        </div>
+        <section class="quick-actions">
+          <h2>Quick Actions</h2>
+          <div class="actions-grid">
+            <a href="students.html" class="action-btn">
+              <i class="fas fa-user-plus"></i> Add Student
+            </a>
+            <a href="teachers.html" class="action-btn">
+              <i class="fas fa-user-tie"></i> Add Teacher
+            </a>
+            <a href="groups.html" class="action-btn">
+              <i class="fas fa-users"></i> Create Group & modules
+            </a>
+            <a href="reports.html" class="action-btn">
+              <i class="fas fa-chart-pie"></i> View Reports
+            </a>
+          </div>
+        </section>
+      </section>
 
     </main>
   </div>

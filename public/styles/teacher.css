@@ -1,32 +1,21 @@
-/* Teacher page stylesheet — imports shared students layout */
 @import "students.css";
-
-/* Add teacher-specific overrides here */
 .teacher-card .teacher-name { }
-
-/* Responsive rules for teachers table */
 @media (max-width: 900px) {
-	/* Reduce padding and font for better fit */
 	.teachers-table thead th,
 	.teachers-table tbody td {
 		padding: 10px 12px;
 		font-size: 13px;
 	}
-
-	/* Hide less-important columns on narrow screens: Group and Module */
 	.teachers-table thead th:nth-child(4),
 	.teachers-table tbody td:nth-child(4),
 	.teachers-table thead th:nth-child(6),
 	.teachers-table tbody td:nth-child(6) {
 		display: none;
 	}
-
-	/* Keep actions visible but tighter */
 	.teachers-table td .action-btn { width: 34px; height: 34px; }
 }
 
 @media (max-width: 540px) {
-	/* On very small screens make the table horizontally scrollable and more compact */
 	.students-card { padding: 6px; }
 	.search-wrap { max-width: 100%; }
 	.teachers-table thead th,

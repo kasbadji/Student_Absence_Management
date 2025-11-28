@@ -1,12 +1,9 @@
-/* Reports page styles — imports dashboard base */
 @import "dashboard.css";
 
-.reports-panel {
-    padding: 20px; grid-column: 1 / -1;
-}
+.reports-panel { padding: 20px; grid-column: 1 / -1; }
 
 .filters.card {
-    padding: 16px; margin-bottom: 16px;
+     background:#fff; padding:16px; margin-bottom:16px; border:1px solid #e6e9f0; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.02);
 }
 .filters-row {
     display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;
@@ -19,41 +16,35 @@
      padding:8px 10px; border-radius:8px; border:1px solid #eef0f4;
  }
 
-.stats-row {
-     display:flex; gap:12px; margin-bottom:16px;
-
-    }
+.stats-row { display:flex; gap:12px; margin-bottom:16px; }
 .stat-card {
      flex:1; padding:14px; background:#fff; border-radius:10px; box-shadow:0 4px 14px rgba(16,24,40,0.04);
 }
+#absentCount { color:#ef4444; font-weight:800; }
+#presentCount { color:#22c55e; font-weight:800; }
+#totalRecords, #attendanceRate { color:#4b3aff; font-weight:800; }
 
-.records.card {
-     padding:0;
-}
+.records.card { background:#fff; border:1px solid #e6e9f0; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.02); padding:0; overflow:hidden; }
 
-.records-header {
- display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid #eef2f6;
-}
+.records-header { display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid #eef2f6; }
 
-.records-table {
-     width:100%; border-collapse:collapse;
-}
+.records-table { width:100%; border-collapse:separate; border-spacing:0; font-size:14px; color:#475569; }
 
-.records-table thead th {
-     padding:12px 18px; text-align:left; background:#fbfdff;
-}
+.records-table thead th { padding:14px 18px; text-align:left; background:#fbfdff; color:#374151; font-weight:600; }
 
-.records-table tbody td {
-     padding:12px 18px; border-top:1px solid #f1f5f9;
-}
+.records-table tbody td { padding:14px 18px; border-top:1px solid #f1f5f9; }
+.records-table tbody tr:first-child td { border-top:none; }
+.records-table tbody tr:hover td { background: rgba(75,58,231,0.03); }
+.records-table tbody tr:nth-child(even) td { background: #fcfdff; }
 
-.status.present {
-     background:#dff6e9; color:#0f5132; padding:6px 10px; border-radius:999px;
-}
+.status { display:inline-block; padding:6px 10px; border-radius:999px; font-weight:600; font-size:12.5px; line-height:1; border:1px solid transparent; }
+.status.present { background:#ECFDF3; color:#12B76A; border-color:#A6F4C5; }
 
-.status.absent {
-     background:#ffecec; color:#6b1a1a; padding:6px 10px; border-radius:999px;
-}
+.status.absent { background:#FEF3F2; color:#F04438; border-color:#FCDADA; }
+
+.btn { padding:10px 14px; border-radius:10px; border:1px solid transparent; cursor:pointer; font-weight:700; }
+.btn-primary { background: linear-gradient(90deg,#6c5ce7,#7b61ff); color:#fff; box-shadow: 0 6px 18px rgba(101,78,255,0.12); }
+.btn-primary:hover { filter: brightness(0.98); }
 
 @media (max-width: 800px) {
   .filters-row { flex-direction:column; }

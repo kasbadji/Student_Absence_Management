@@ -42,7 +42,7 @@ $(document).ready(function () {
                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:12px;">
                   <div style="color:#666; font-size:.95rem;"> <i class="fas fa-user-friends"></i> ${escapeHtml(studentsText)}</div>
                   <div>
-                    <a class="action-btn" href="/public/teacher/take_attendance.html?module_id=${encodeURIComponent(item.module_id)}&group_id=${encodeURIComponent(item.group_id)}">Take Attendance &rarr;</a>
+                    <a class="action-btn" href="take_attendance.html?module_id=${encodeURIComponent(item.module_id)}&group_id=${encodeURIComponent(item.group_id)}">Take Attendance &rarr;</a>
                   </div>
                 </div>
             </div>`

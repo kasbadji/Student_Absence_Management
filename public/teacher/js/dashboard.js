@@ -24,9 +24,6 @@ $(document).ready(function () {
           $('#teacherRole').text('teacher');
         }
       },
-      error: function (xhr, status, err) {
-        // handle error silently for now
-      }
     });
   }
 });

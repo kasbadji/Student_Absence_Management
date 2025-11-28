@@ -10,19 +10,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 try {
-    $modules = $pdo->query('
-        SELECT module_id, title, code FROM modules ORDER BY module_id DESC
-   ')->fetchAll(PDO::FETCH_ASSOC);
+    $modules = $pdo->query(
+        "SELECT module_id, title, code, COALESCE(CAST(has_td AS int), 0) AS has_td, COALESCE(CAST(has_tp AS int), 0) AS has_tp FROM modules ORDER BY module_id DESC"
+    )->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
         'success' => true,
         'modules' => $modules
     ]);
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()
     ]);
 }
 ?>
+

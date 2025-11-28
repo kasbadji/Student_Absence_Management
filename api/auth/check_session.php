@@ -1,7 +1,5 @@
 <?php
 header('Content-Type: application/json');
-// Ensure we use the same cookie path as login so browsers send the
-// session cookie consistently to check_session requests.
 session_set_cookie_params(0, '/');
 session_start();
 

@@ -1,7 +1,4 @@
-/* Groups & Modules page stylesheet — imports shared students layout */
 @import "students.css";
-
-/* Add groups & modules specific overrides here */
 .groups-modules-container { }
 .action-btn{
     border-style: none;

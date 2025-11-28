@@ -1,4 +1,3 @@
-// teacher-specific common functions (based on admin common)
 $(document).ready(function () {
 
   (function detectApiBase() {

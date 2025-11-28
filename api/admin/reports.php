@@ -3,20 +3,17 @@ header('Content-Type: application/json');
 session_start();
 require_once __DIR__ . '/../config/db.php';
 
-// Only admin access
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
     exit;
 }
 
 try {
-    // Optional filters
     $date_from = $_GET['date_from'] ?? null;
     $date_to = $_GET['date_to'] ?? null;
     $group_id = isset($_GET['group_id']) && $_GET['group_id'] !== '' ? (int) $_GET['group_id'] : null;
     $student_id = isset($_GET['student_id']) && $_GET['student_id'] !== '' ? (int) $_GET['student_id'] : null;
 
-    // Build base query. We try to join with sessions to get a session date if available.
     $sql = "
         SELECT
             a.attendance_id,
@@ -59,16 +56,26 @@ try {
     $stmt->execute($params);
     $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Compute simple stats
+    foreach ($records as &$rec) {
+        $raw = strtolower(trim((string) ($rec['status'] ?? '')));
+        $isPresent = in_array($raw, ['present', 'p', '1', 'true'], true);
+        $label = $isPresent ? 'Present' : 'Absent';
+        $class = $isPresent ? 'present' : 'absent';
+        $rec['status_label'] = $label;
+        $rec['status_class'] = $class;
+    }
+    unset($rec);
+
     $total = count($records);
     $present = 0;
     $absent = 0;
     foreach ($records as $r) {
         $st = strtolower($r['status'] ?? '');
-        if ($st === 'present' || $st === 'p' || $st === '1')
+        if ($st === 'present' || $st === 'p' || $st === '1' || $st === 'true') {
             $present++;
-        else
+        } else {
             $absent++;
+        }
     }
 
     echo json_encode([

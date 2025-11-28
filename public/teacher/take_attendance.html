@@ -4,12 +4,12 @@
   <script src="../js/adoptedStyleSheets_polyfill.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>My Classes</title>
-  <link rel="stylesheet" href="../styles/dashboard.css" />
+  <title>Take Attendance</title>
+  <link rel="stylesheet" href="../styles/take_attendance.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
+<body class="take-attendance">
   <div class="dashboard-wrapper">
     <nav class="sidebar">
       <div class="sidebar-logo">
@@ -26,7 +26,7 @@
     <main class="dashboard-main">
       <header class="topbar">
         <div class="page-info">
-          <h1>My Classes</h1>
+          <h1>Take Attendance</h1>
           <p id="currentDate"></p>
         </div>
         <div class="user-info">
@@ -43,13 +43,35 @@
 
       <section>
         <div class="stat-card" style="padding:0.8rem; margin-bottom:1rem;">
-          <h3 style="margin-bottom:.4rem;">My Classes</h3>
-          <p style="color:#666; font-size:.95rem;">View and manage your assigned classes</p>
+          <h3 style="margin-bottom:.4rem;">Take Attendance</h3>
+          <p id="classInfo" style="color:#666; font-size:.95rem; margin:0;">Loading class…</p>
         </div>
 
-        <div id="classesContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
-          <!-- class cards will be injected here -->
+        <div style="display:flex; gap:1rem; margin-bottom:1rem;">
+          <div class="stat-card" style="flex:1; text-align:center;">
+            <p style="margin:0; color:#666;">Total Students</p>
+            <h3 id="totalStudents">0</h3>
+          </div>
+          <div class="stat-card" style="flex:1; text-align:center;">
+            <p style="margin:0; color:#666;">Present</p>
+            <h3 id="presentCount">0</h3>
+          </div>
+          <div class="stat-card" style="flex:1; text-align:center;">
+            <p style="margin:0; color:#666;">Absent</p>
+            <h3 id="absentCount">0</h3>
+          </div>
         </div>
+
+        <div class="stat-card student-list">
+          <h4 style="margin-top:0;">Student List</h4>
+          <div id="studentsList">
+          </div>
+        </div>
+
+        <div class="save-wrap">
+          <button id="saveAttendance" class="action-btn"><i class="fas fa-save"></i> Save Attendance</button>
+        </div>
+
       </section>
 
     </main>
@@ -61,6 +83,6 @@
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     dateEl.textContent = new Date().toLocaleDateString('en-US', options);
   </script>
-  <script src="js/my_classes.js"></script>
+  <script src="js/take_attendance.js"></script>
 </body>
 </html>

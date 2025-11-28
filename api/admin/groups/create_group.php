@@ -32,7 +32,7 @@ try {
     ]);
 }
 
-// success response
+//! success response
 echo json_encode([
     'success' => true,
     'message' => 'Group created successfully',

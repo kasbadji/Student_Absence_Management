@@ -147,7 +147,7 @@ html, body, .dashboard-wrapper {
 }
 .students-container {
   padding: 24px 20px;
-  grid-column: 1 / -1; /* take entire main area (both columns) */
+  grid-column: 1 / -1;
   position: relative;
 }
 
@@ -266,7 +266,6 @@ html, body, .dashboard-wrapper {
   font-size: 16px;
 }
 
-/* icon action buttons (compact, colored icons) */
 .action-btn {
   display: inline-flex;
   align-items: center;
@@ -300,14 +299,12 @@ html, body, .dashboard-wrapper {
   transform: translateY(-1px);
 }
 
-/* small screens */
 @media (max-width: 800px) {
   .search-wrap input { width: 160px; }
   .students-header { flex-direction: column; gap: 12px; align-items: stretch; }
   .btn.add-btn { width: 100%; justify-content: center; }
 }
 
-/* Modal styles used by edit_modal.js */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -356,6 +353,17 @@ html, body, .dashboard-wrapper {
 .form-row label { display:block; font-size:13px; color:#6b7280; margin-bottom:8px; }
 .form-row input,
 .form-row select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef6; font-size:14px; background:#fff; }
+
+/* checkboxes should not be stretched like text inputs */
+.form-row input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  border: none;
+  transform: scale(1.05);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.form-row input[type="checkbox"] + span { vertical-align: middle; }
 
 .modal-footer { display:flex; gap:12px; justify-content:flex-end; margin-top:8px; }
 .btn { padding:8px 14px; border-radius:8px; border:1px solid transparent; cursor:pointer; font-weight:600; }

@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  let ALL_TEACHERS = [];
   checkSession(init);
 
   function init() {
@@ -7,7 +8,6 @@ $(document).ready(function () {
     loadTeachers();
   }
 
-  // ---------------- Load Groups ----------------
   function loadGroups() {
     $.ajax({
       url: API_BASE + '/admin/groups/get_all_groups.php',
@@ -15,7 +15,6 @@ $(document).ready(function () {
       xhrFields: { withCredentials: true },
       success(res) {
         if (!res.success) return;
-        // include an explicit "no group" option so admin can clear assignment
         const options = res.groups.map(g =>
           `<option value="${g.group_id}">${g.name}</option>`
         );
@@ -25,7 +24,6 @@ $(document).ready(function () {
     });
   }
 
-  // ---------------- Load Modules ----------------
   function loadModules() {
     $.ajax({
       url: API_BASE + '/admin/modules/get_all_modules.php',
@@ -33,7 +31,6 @@ $(document).ready(function () {
       xhrFields: { withCredentials: true },
       success(res) {
         if (!res.success) return;
-        // include an explicit "no module" option so admin can clear assignment
         const options = res.modules.map(m =>
           `<option value="${m.module_id}">${m.title}</option>`
         );
@@ -43,7 +40,6 @@ $(document).ready(function () {
     });
   }
 
-  // ---------------- Load Teachers ----------------
   function loadTeachers() {
   $.ajax({
     url: API_BASE + '/admin/users/get_all_teachers.php',
@@ -55,29 +51,8 @@ $(document).ready(function () {
         $('#teacherRows').html('<tr><td colspan="7">Error loading teachers.</td></tr>');
         return;
       }
-
-      const rows = res.teachers.map(t => `
-        <tr>
-          <td>${t.teacher_id}</td>
-          <td>${t.full_name}</td>
-          <td>${t.email || '-'}</td>
-          <td>${t.group_name || '-'} ${t.title || '-'}</td>
-          <td>
-            <button
-              type="button"
-              class="action-btn edit-student-btn edit-teacher-btn"
-              title="Edit"
-              data-id="${t.user_id}"
-              data-name="${t.full_name}"
-              data-email="${t.email || ''}"
-              data-group_id="${t.group_id || ''}"
-              data-module_id="${t.module_id || ''}"
-            ><i class="fas fa-edit"></i></button>
-            <button type="button" class="action-btn delete-student-btn delete-teacher-btn" title="Delete" data-id="${t.user_id}"><i class="fas fa-trash"></i></button>
-          </td>
-        </tr>`).join('');
-
-      $('#teacherRows').html(rows);
+      ALL_TEACHERS = Array.isArray(res.teachers) ? res.teachers : [];
+      renderTeachers(ALL_TEACHERS);
     },
     error: function () {
       $('#teacherRows').html('<tr><td colspan="7">Could not connect to server.</td></tr>');
@@ -85,17 +60,59 @@ $(document).ready(function () {
   });
 }
 
-  // ---------------- Create Teacher ----------------
-  // Add Teacher (open modal)
+  function renderTeachers(list) {
+    const rows = (list || []).map(t => `
+      <tr>
+        <td>${t.teacher_id}</td>
+        <td>${t.full_name}</td>
+        <td>${t.email || '-'}</td>
+        <td>${t.group_name || '-'} ${t.title || '-'}<br/><small>${(t.session_type_label||t.session_type||'-')}</small></td>
+        <td>
+          <button type="button" class="action-btn edit-student-btn edit-teacher-btn"
+            title="Edit"
+            data-id="${t.user_id}"
+            data-name="${t.full_name}"
+            data-email="${t.email || ''}"
+            data-group_id="${t.group_id || ''}"
+            data-module_id="${t.module_id || ''}"
+            data-session_type="${t.session_type || ''}">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button type="button" class="action-btn delete-student-btn delete-teacher-btn" title="Delete" data-id="${t.user_id}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>`).join('');
+
+    $('#teacherRows').html(rows || '<tr><td colspan="7">No teachers found.</td></tr>');
+  }
+
+  function debounce(fn, ms) {
+    let t; return function() { clearTimeout(t); const args = arguments; const ctx = this; t = setTimeout(() => fn.apply(ctx, args), ms); };
+  }
+
+  function normalize(v){ return (v||'').toString().toLowerCase().trim(); }
+
+  const handleSearch = debounce(function(){
+    if (!Array.isArray(ALL_TEACHERS) || ALL_TEACHERS.length === 0) { loadTeachers(); return; }
+    const q = normalize($('#searchTeachers').val());
+    if (!q) { renderTeachers(ALL_TEACHERS); return; }
+    const filtered = ALL_TEACHERS.filter(t => {
+      const fields = [t.full_name, t.email, t.group_name, t.title, t.session_type_label, t.teacher_id && String(t.teacher_id)];
+      return fields.some(v => normalize(v).includes(q));
+    });
+    renderTeachers(filtered);
+  }, 150);
+
+  $('#searchTeachers').on('input keyup change', handleSearch);
+
   $(document).on('click', '#addTeacherBtn', function () {
-    // load groups/modules first
     Promise.all([
       $.get(API_BASE + '/admin/groups/get_all_groups.php'),
       $.get(API_BASE + '/admin/modules/get_all_modules.php')
     ]).then(([gRes, mRes]) => {
       if (typeof gRes === 'string') gRes = JSON.parse(gRes);
       if (typeof mRes === 'string') mRes = JSON.parse(mRes);
-      // prepend an explicit empty option to allow clearing assignment
       const groupOptions = `<option value="">-- No group --</option>` + (gRes.groups || []).map(g => `<option value="${g.group_id}">${g.name}</option>`).join('');
       const moduleOptions = `<option value="">-- No module --</option>` + (mRes.modules || []).map(m => `<option value="${m.module_id}">${m.title}</option>`).join('');
 
@@ -106,17 +123,57 @@ $(document).ready(function () {
           { name: 'email', label: 'Email', type: 'email', value: '', required: true },
           { name: 'password', label: 'Password', type: 'password', value: '', required: true },
           { name: 'group_id', label: 'Group', type: 'select', value: '', optionsHtml: groupOptions },
-          { name: 'module_id', label: 'Module', type: 'select', value: '', optionsHtml: moduleOptions }
+          { name: 'module_id', label: 'Module', type: 'select', value: '', optionsHtml: moduleOptions },
+          { name: 'session_cours', label: 'Cours', type: 'checkbox', value: false },
+          { name: 'session_td', label: 'TD', type: 'checkbox', value: false },
+          { name: 'session_tp', label: 'TP', type: 'checkbox', value: false }
         ],
         onSubmit(values) {
-          if (!values.full_name || !values.email || !values.password) return alert('All fields are required.');
-          const payload = {
-            full_name: values.full_name.trim(),
-            email: values.email.trim(),
-            password: values.password.trim(),
-            group_id: values.group_id || null,
-            module_id: values.module_id || null
-          };
+          if (!values.full_name || !values.email || !values.password) {
+            return alert('All fields are required.');
+          }
+
+const c = !!values.session_cours;
+const td = !!values.session_td;
+const tp = !!values.session_tp;
+
+let session_type = null;
+
+if (c && td && tp) {
+  session_type = 'ALL';
+}
+else if (!c && td && tp) {
+  session_type = 'TD/TP';
+}
+else if (c && !td && !tp) {
+  session_type = 'cours';
+}
+else if (!c && td && !tp) {
+  session_type = 'TD';
+}
+else if (!c && !td && tp) {
+  session_type = 'TP';
+}
+else if (c && td && !tp) {
+  session_type = 'cours';
+}
+else if (c && tp && !td) {
+  session_type = 'cours';
+}
+
+if (!session_type) {
+  session_type = 'TD';
+}
+
+const payload = {
+  full_name: values.full_name.trim(),
+  email: values.email.trim(),
+  password: values.password.trim(),
+  group_id: values.group_id || null,
+  module_id: values.module_id || null,
+  session_type: session_type
+};
+
           $.ajax({
             url: API_BASE + '/admin/users/create_teacher.php',
             method: 'POST',
@@ -134,8 +191,6 @@ $(document).ready(function () {
     }).catch(() => alert('Could not load groups/modules'));
   });
 
-// ---------------- Edit Teacher ----------------
-// ---------------- Edit Teacher ----------------
 $(document).on('click', '.edit-teacher-btn', function () {
   const id        = $(this).data('id');
   const oldName   = $(this).data('name');
@@ -143,7 +198,6 @@ $(document).on('click', '.edit-teacher-btn', function () {
   const oldGroup  = $(this).data('group_id');
   const oldModule = $(this).data('module_id');
 
-  // Load groups and modules first
   Promise.all([
     $.ajax({
       url: API_BASE + '/admin/groups/get_all_groups.php',
@@ -157,7 +211,6 @@ $(document).on('click', '.edit-teacher-btn', function () {
     })
   ])
   .then(([groupRes, moduleRes]) => {
-    // include a blank option first so admin can unset the assignment
     const groupOptions = [ { label: '-- No group --', value: '' } ].concat((groupRes.groups || []).map(g => ({
       label: g.name,
       value: g.group_id
@@ -168,6 +221,11 @@ $(document).on('click', '.edit-teacher-btn', function () {
       value: m.module_id
     })));
 
+    const existing = (($(this).data('session_type') || '')).toString().toLowerCase();
+    const hasC = existing.indexOf('cours') !== -1 || existing.indexOf('all') !== -1 || existing.indexOf('c') !== -1;
+    const hasTD = existing.indexOf('td') !== -1;
+    const hasTP = existing.indexOf('tp') !== -1;
+
     openEditModal({
       title: 'Edit Teacher',
       fields: [
@@ -175,35 +233,51 @@ $(document).on('click', '.edit-teacher-btn', function () {
         { name: 'email', label: 'Email', type: 'email', value: oldEmail, required: true },
         { name: 'password', label: 'New Password (leave blank to keep current)', type: 'password', value: '' },
         { name: 'group_id', label: 'Assigned Group', type: 'select', options: groupOptions, value: oldGroup || '' },
-        { name: 'module_id', label: 'Assigned Module', type: 'select', options: moduleOptions, value: oldModule || '' }
+        { name: 'module_id', label: 'Assigned Module', type: 'select', options: moduleOptions, value: oldModule || '' },
+        { name: 'session_cours', label: 'Cours', type: 'checkbox', value: hasC },
+        { name: 'session_td', label: 'TD', type: 'checkbox', value: hasTD },
+        { name: 'session_tp', label: 'TP', type: 'checkbox', value: hasTP }
       ],
 
       onSubmit(values) {
         if (!values.full_name || values.full_name.trim() === '') return alert('Name is required.');
         if (!values.email || values.email.trim() === '') return alert('Email is required.');
 
+        const c2 = !!values.session_cours;
+        const td2 = !!values.session_td;
+        const tp2 = !!values.session_tp;
+        let session_type = '';
+        if (c2 && td2 && tp2) session_type = 'ALL';
+        else if (!c2 && td2 && tp2) session_type = 'TD/TP';
+        else if (c2 && !td2 && !tp2) session_type = 'cours';
+        else if (!c2 && td2 && !tp2) session_type = 'TD';
+        else if (!c2 && !td2 && tp2) session_type = 'TP';
+        else if (c2 && td2 && !tp2) session_type = 'C/TD';
+        else if (c2 && tp2 && !td2) session_type = 'C/TP';
+
         const payload = {
           user_id: id,
           full_name: values.full_name.trim(),
           email: values.email.trim(),
           group_id: values.group_id || null,
-          module_id: values.module_id || null
+          module_id: values.module_id || null,
+          session_type: session_type || null
         };
         if (values.password && values.password.trim() !== '')
           payload.password = values.password.trim();
 
         $.ajax({
-          url: API_BASE + '/admin/users/update_user.php',
+          url: API_BASE + '/admin/users/update_teacher.php',
           method: 'POST',
           contentType: 'application/json',
           xhrFields: { withCredentials: true },
           data: JSON.stringify(payload),
           success(res) {
             if (res.success) {
-              alert('✅ ' + res.message);
+              alert('success' + res.message);
               loadTeachers();
             } else {
-              alert('❌ ' + res.message);
+              alert('error' + res.message);
             }
           },
           error(xhr, status, err) {
@@ -214,12 +288,10 @@ $(document).on('click', '.edit-teacher-btn', function () {
     });
   })
   .catch(err => {
-    // failed to load group/module lists
     alert('Failed to load list of groups/modules.');
   });
 });
 
-// ---------------- Delete Teacher ----------------
 async function handleTeacherDelete(e) {
   e.preventDefault();
   const $btn = $(e.target).closest('.delete-teacher-btn');
@@ -249,7 +321,6 @@ async function handleTeacherDelete(e) {
   } catch (ex) { window.__deletingUsers.delete(id); $btn.prop('disabled', false).removeClass('deleting'); alert('Unexpected error'); }
 }
 
-// delegated binding
 $(document).off('click.deleteTeacher', '.delete-teacher-btn').on('click.deleteTeacher', '.delete-teacher-btn', handleTeacherDelete);
 $('#teacherRows').off('click.deleteTeacher').on('click.deleteTeacher', '.delete-teacher-btn', handleTeacherDelete);
 });

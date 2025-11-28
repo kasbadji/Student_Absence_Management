@@ -116,6 +116,28 @@ body {
   gap: 1.5rem;
   align-items: start;
 }
+.take-attendance .dashboard-main {
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto 1fr;
+  width: calc(100% - 230px);
+}
+
+.take-attendance .dashboard-main > section {
+  grid-column: 1 / -1;
+}
+
+.take-attendance .dashboard-main {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .take-attendance .dashboard-main {
+    margin-left: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+}
 
 .topbar {
   background: #fff;
@@ -235,6 +257,7 @@ body {
 .icon.blue { background: #4b3aff; }
 .icon.green { background: #27ae60; }
 .icon.purple { background: #9b59b6; }
+.icon.orange { background: #fff4ea; color: #ff6a00; }
 
 .stat-card p {
   color: #777;
@@ -246,12 +269,16 @@ body {
   font-weight: 700;
 }
 
+#studentCount { color: #4b3aff; }
+#teacherCount { color: #27ae60; }
+#groupModuleDisplay { color: #9b59b6; }
+#attendanceRateDashboard { color: #ff6a00; }
+
 .quick-actions {
   background: #fff;
   border: 1px solid #e6e9f0;
   border-radius: 12px;
   padding: 1.8rem;
-  grid-column: 2 / 3;
   align-self: start;
   max-width: none;
   width: 100%;
@@ -264,11 +291,10 @@ body {
   text-align: center;
 }
 
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.2rem;
-}
+.actions-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+@media (max-width: 768px) { .actions-grid { grid-template-columns: 1fr; } }
+
+.recent-activity { display:none !important; }
 
 .action-btn {
   border: 2px dashed #e2defe;
@@ -316,4 +342,7 @@ body {
   }
 }
 
+.stats .quick-actions {
+  grid-column: 1 / -1;
+}
 

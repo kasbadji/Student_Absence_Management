@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/js/adoptedStyleSheets_polyfill.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Groups | Admin Panel</title>
@@ -70,7 +71,6 @@
           </table>
         </div>
 
-        <!-- Modules section merged into same page -->
         <div class="students-header" style="margin-top:20px;">
           <div class="search-wrap">
             <i class="fas fa-search"></i>
@@ -81,12 +81,12 @@
         <div class="students-card">
           <table class="students-table">
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Code</th>
-                <th class="actions-col">Actions</th>
-              </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Session</th>
+                  <th class="actions-col">Actions</th>
+                </tr>
             </thead>
             <tbody id="moduleRows"></tbody>
           </table>

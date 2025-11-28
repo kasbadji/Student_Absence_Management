@@ -5,7 +5,6 @@ if (!file_exists($envPath)) {
     throw new Exception(".env file not found.");
 }
 
-// Load .env file
 $env = parse_ini_file($envPath);
 if ($env === false) {
     throw new Exception("Failed to parse .env file.");
@@ -25,8 +24,6 @@ $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['dat
 try {
     $pdo = new PDO($dsn, $config['username'], $config['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // Disable emulated prepares to ensure native prepared statements
-    // (helps with PostgreSQL RETURNING and type handling)
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());

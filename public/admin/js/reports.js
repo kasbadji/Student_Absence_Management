@@ -42,21 +42,23 @@ $(document).ready(function () {
       $('#absentCount').text(s.absent);
       $('#attendanceRate').text((s.rate||0) + '%');
 
-      const rows = (res.records || []).map(r => `
+      const rows = (res.records || []).map(r => {
+        const cls = r.status_class || (String(r.status || '').toLowerCase());
+        const label = r.status_label || r.status || '';
+        return `
         <tr>
           <td>${r.session_date || ''}</td>
           <td>${r.full_name || ''}</td>
           <td>${r.group_name || ''}</td>
-          <td><span class="status ${r.status.toLowerCase()}">${r.status}</span></td>
-        </tr>`).join('');
+          <td><span class="status ${cls}">${label}</span></td>
+        </tr>`;
+      }).join('');
       $('#recordsBody').html(rows);
     }, error() { alert('Server connection failed.'); }});
   }
 
   $('#applyFilters').on('click', function () { loadRecords(); });
-
   $('#exportCsv').on('click', function () {
-    // Simple CSV export of current table
     const rows = [['Date','Student','Group','Status']];
     $('#recordsBody tr').each(function () {
       const cols = $(this).find('td').map(function(){return $(this).text().trim();}).get();

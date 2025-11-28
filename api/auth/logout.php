@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: application/json');
-// Keep cookie path consistent
 session_set_cookie_params(0, '/');
 session_start();
 session_unset();

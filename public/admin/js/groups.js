@@ -1,8 +1,7 @@
-// js/admin/groups.js
 $(document).ready(function () {
 
+let ALL_GROUPS = [];
 checkSession(loadGroups);
-// ---------------- Load all groups ----------------
 function loadGroups() {
   $.ajax({
     url: API_BASE + '/admin/groups/get_all_groups.php',
@@ -13,23 +12,8 @@ function loadGroups() {
         $('#groupRows').html('<tr><td colspan="3">Error loading groups.</td></tr>');
         return;
       }
-
-      const rows = res.groups.map(g => `
-        <tr>
-          <td>${g.group_id}</td>
-          <td>${g.name}</td>
-          <td>
-                <button type="button" class="action-btn edit-student-btn edit-group-btn"
-                  title="Edit"
-                  data-id="${g.group_id}"
-                  data-name="${g.name}"><i class="fas fa-edit"></i></button>
-                <button type="button" class="action-btn delete-student-btn delete-group-btn"
-                  title="Delete"
-                  data-id="${g.group_id}"><i class="fas fa-trash"></i></button>
-          </td>
-        </tr>`).join('');
-
-      $('#groupRows').html(rows);
+      ALL_GROUPS = Array.isArray(res.groups) ? res.groups : [];
+      renderGroups(ALL_GROUPS);
     },
     error: function () {
       $('#groupRows').html('<tr><td colspan="3">Server connection failed.</td></tr>');
@@ -37,7 +21,33 @@ function loadGroups() {
   });
 }
 
-// ---------------- Create Group ----------------
+function renderGroups(list) {
+  const rows = (list || []).map(g => `
+    <tr>
+      <td>${g.group_id}</td>
+      <td>${g.name}</td>
+      <td>
+        <button type="button" class="action-btn edit-student-btn edit-group-btn" title="Edit"
+          data-id="${g.group_id}" data-name="${g.name}"><i class="fas fa-edit"></i></button>
+        <button type="button" class="action-btn delete-student-btn delete-group-btn" title="Delete"
+          data-id="${g.group_id}"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+  $('#groupRows').html(rows || '<tr><td colspan="3">No groups found.</td></tr>');
+}
+
+function debounce(fn, ms){ let t; return function(){ clearTimeout(t); const a=arguments, c=this; t=setTimeout(()=>fn.apply(c,a), ms); }; }
+
+$('#searchGroups').on('input keyup change', debounce(function(){
+  const q = ($(this).val()||'').toString().toLowerCase().trim();
+  if (!q) { renderGroups(ALL_GROUPS); return; }
+  const filtered = ALL_GROUPS.filter(g => {
+    const fields = [g.name, g.group_id && String(g.group_id)];
+    return fields.some(v => (v||'').toString().toLowerCase().includes(q));
+  });
+  renderGroups(filtered);
+}, 150));
+
 $(document).on('click', '#createGroupBtn', function () {
   const name = $('#groupName').val().trim();
   if (!name) {
@@ -62,7 +72,7 @@ $(document).on('click', '#createGroupBtn', function () {
     }
   });
 });
-// Remove inline create handler; use modal add instead
+
 $(document).on('click', '#addGroupBtn', function () {
   openEditModal({
     title: 'Add Group',
@@ -80,7 +90,7 @@ $(document).on('click', '#addGroupBtn', function () {
     }
   });
 });
-// ---------------- Edit Group ----------------
+
 $(document).on('click', '.edit-group-btn', function () {
   const id = $(this).data('id');
   const oldName = $(this).data('name');
@@ -92,7 +102,6 @@ $(document).on('click', '.edit-group-btn', function () {
     onSubmit(values) {
       if (!values.name || values.name.trim() === '') return alert('Group name is required.');
       const updatePayload = { group_id: id, name: values.name.trim() };
-      // sending update_group payload
 
       $.ajax({
         url: API_BASE + '/admin/groups/update_group.php',
@@ -109,11 +118,6 @@ $(document).on('click', '.edit-group-btn', function () {
       });
     }
   });
-});
-
-// ---------------- Delete Group ----------------
-$(document).on('click', '.delete-group-btn', function () {
-  // delegated delete handler using in-page confirm
 });
 
 async function handleGroupDelete(e) {
@@ -144,7 +148,6 @@ async function handleGroupDelete(e) {
   } catch (ex) { window.__deletingGroups.delete(id); $btn.prop('disabled', false).removeClass('deleting'); alert('Unexpected error'); }
 }
 
-// delegated binding
 $(document).off('click.deleteGroup', '.delete-group-btn').on('click.deleteGroup', '.delete-group-btn', handleGroupDelete);
 $('#groupRows').off('click.deleteGroup').on('click.deleteGroup', '.delete-group-btn', handleGroupDelete);
 });
