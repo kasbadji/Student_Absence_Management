@@ -114,7 +114,7 @@ $(document).on('click', '#createStudentBtn', function () {
     data: JSON.stringify(payload),
     success: function (res) {
       $('#studentMsg').removeClass().addClass(res.success ? 'status' : 'error')
-        .text(res.success ? `✅ ${res.message} Matricule: ${res.student.matricule}` : `❌ ${res.message}`);
+        .text(res.success ? `${res.message} Matricule: ${res.student.matricule}` : `${res.message}`);
       if (res.success) {
         $('#studentFullName, #studentPassword').val('');
         loadStudents();
