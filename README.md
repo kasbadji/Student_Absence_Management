@@ -93,7 +93,7 @@ Frontend pages specifically for teachers.
 
 
 ## SQL:
-
+```
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
@@ -200,9 +200,10 @@ CREATE INDEX idx_teacher_module ON teachers (module_id);
 CREATE INDEX idx_student_group ON students (group_id);
 CREATE INDEX idx_session_date ON sessions (session_date);
 CREATE INDEX idx_attendance_status ON attendance (status);
-
+```
 ---
 ## Relation :
+```
 users (1,1)  (1,1) teachers  
 users (1,1)  (1,1) students  
 
@@ -221,3 +222,4 @@ students (1,1)  (0,N) attendance
 students (1,1)  (0,N) justifications  
 
 attendance (1,1)  (0,1) justifications
+```
