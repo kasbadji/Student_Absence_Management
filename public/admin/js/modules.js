@@ -39,6 +39,7 @@ function renderModules(list) {
             title="Edit"
             data-id="${m.module_id}"
             data-title="${m.title}"
+            data-code="${m.code || ''}"
             data-has_td="${m.has_td}"
             data-has_tp="${m.has_tp}"><i class="fas fa-edit"></i></button>
           <button type="button" class="action-btn delete-student-btn delete-module-btn"
@@ -69,19 +70,20 @@ $(document).on('click', '#addModuleBtn', function () {
   openEditModal({
     title: 'Add Module',
     fields: [
+      { name: 'code', label: 'Code', type: 'text', value: '', required: true },
       { name: 'title', label: 'Title', type: 'text', value: '', required: true },
       { name: 'has_td', label: 'Has TD', type: 'checkbox', value: false },
       { name: 'has_tp', label: 'Has TP', type: 'checkbox', value: false }
     ],
     onSubmit(values) {
-      if (!values.title) return alert('All fields are required.');
+      if (!values.title || !values.code) return alert('All fields are required.');
       $.ajax({
         url: API_BASE + '/admin/modules/create_module.php',
           method: 'POST',
           contentType: 'application/json',
           dataType: 'json',
           xhrFields: { withCredentials: true },
-        data: JSON.stringify({ title: values.title.trim(), has_td: !!values.has_td, has_tp: !!values.has_tp }),
+        data: JSON.stringify({ code: values.code.trim(), title: values.title.trim(), has_td: !!values.has_td, has_tp: !!values.has_tp }),
         success: function (res) { alert(res.message); if (res.success) loadModules(); },
         error: function () { alert('Server connection failed.'); }
       });
@@ -93,19 +95,21 @@ $(document).on('click', '.edit-module-btn', function () {
 
   const id = $(this).data('id');
   const oldTitle = $(this).data('title');
+  const oldCode = $(this).data('code');
 
   openEditModal({
     title: 'Edit Module',
     fields: [
+      { name: 'code', label: 'Code', type: 'text', value: oldCode || '', required: true },
       { name: 'title', label: 'Title', type: 'text', value: oldTitle, required: true },
       { name: 'has_td', label: 'Has TD', type: 'checkbox', value: ($(this).data('has_td') && +$(this).data('has_td')) ? true : false },
       { name: 'has_tp', label: 'Has TP', type: 'checkbox', value: ($(this).data('has_tp') && +$(this).data('has_tp')) ? true : false }
     ],
 
     onSubmit(values) {
-      if (!values.title) return alert('All fields are required.');
+      if (!values.title || !values.code) return alert('All fields are required.');
 
-      const updatePayload = { module_id: id, title: values.title.trim(), has_td: !!values.has_td, has_tp: !!values.has_tp };
+      const updatePayload = { module_id: id, code: values.code.trim(), title: values.title.trim(), has_td: !!values.has_td, has_tp: !!values.has_tp };
 
       $.ajax({
         url: API_BASE + '/admin/modules/update_module.php',

@@ -188,6 +188,9 @@ body {
   transform: translateY(-3px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
+.stat-card h3#totalStudents { color: #2563eb; }
+.stat-card h3#presentCount { color: #10b981; }
+.stat-card h3#absentCount { color: #ef4444; }
 .action-btn {
   border: 2px dashed #e2defe;
   background: #fafaff;

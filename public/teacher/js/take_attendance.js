@@ -119,8 +119,8 @@ $(document).ready(function () {
                 </div>
               </div>
               <div class="student-actions">
-                <button class="present-btn mark-present" data-student="${sid}">✔ Present</button>
-                <button class="absent-btn mark-absent" data-student="${sid}">✖ Absent</button>
+                <button class="present-btn mark-present" data-student="${sid}">Present</button>
+                <button class="absent-btn mark-absent" data-student="${sid}">Absent</button>
               </div>
             </div>`
           );

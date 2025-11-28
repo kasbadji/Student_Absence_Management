@@ -11,11 +11,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $data = json_decode(file_get_contents('php://input'), true);
 $id = $data['module_id'] ?? null;
+$code = trim($data['code'] ?? '');
 $title = trim($data['title'] ?? '');
 $has_td = isset($data['has_td']) ? (int) $data['has_td'] : null;
 $has_tp = isset($data['has_tp']) ? (int) $data['has_tp'] : null;
 
-if (!$id || !$title) {
+if (!$id || !$title || !$code) {
     echo json_encode([
         'success' => false,
         'message' => 'All fields are required'
@@ -24,8 +25,8 @@ if (!$id || !$title) {
 }
 
 try {
-    $fields = ['title' => ':title'];
-    $params = [':title' => $title, ':id' => $id];
+    $fields = ['title' => ':title', 'code' => ':code'];
+    $params = [':title' => $title, ':code' => $code, ':id' => $id];
     if ($has_td !== null) {
         $fields['has_td'] = ':has_td';
         $params[':has_td'] = $has_td;
@@ -36,7 +37,8 @@ try {
     }
 
     $setSql = implode(', ', array_map(function ($k, $v) {
-        return "$k = $v"; }, array_keys($fields), $fields));
+        return "$k = $v";
+    }, array_keys($fields), $fields));
     $sql = "UPDATE modules SET $setSql WHERE module_id = :id";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
